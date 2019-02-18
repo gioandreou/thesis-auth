@@ -107,10 +107,12 @@ def print_post_info(dataframe):
         print(50*"--")
 
 def dataframe_city_country(dataframe):
+   
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
         start = str(dataframe['Date'].iloc[0])
         end = str(dataframe['Date'].iloc[-1])
         
+        #print(dataframe)
 
         last_date_top = transpose(dataframe)
         last_date_top = last_date_top.nlargest(5,0)
@@ -123,7 +125,6 @@ def dataframe_city_country(dataframe):
         new_df['Growth %'] = (((last_values-first_values)/last_values)*100).round(2)
         #last_date_top = end
 
-        
         
         print(new_df)
 
@@ -139,6 +140,7 @@ def main():
         path=mypath+item
 
         df_list.append(get_excel_to_panda(path))
+    
     '''
     df_page_info=df_list[1]
     df_info,start_info,end_info =  dataframe_page_info(df_page_info)
@@ -149,12 +151,19 @@ def main():
 
     df_ages=df_list[3]
     dataframe_ages(df_ages)
-    '''
+    
     df_page_post_info= df_list[4]
     df_info,start_info,end_info =  dataframe_page_info(df_page_post_info)
     print_page_post(df_info,start_info,end_info)
     '''
-    df_country=df_list[0]
+
+
+    df_country=df_list[2]
+    df_city=df_list[1]
+    df_locale = df_list[3]
+    
     dataframe_city_country(df_country)
-    '''
+    dataframe_city_country(df_city)
+    dataframe_city_country(df_locale)
+    
 main()
