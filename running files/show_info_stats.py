@@ -22,8 +22,8 @@ def dataframe_ages(age_dataframe):
 
     new_df = transpose(age_dataframe)
 
-    total = np.sum(new_df.ix[:,:].values)
-    new_df['percent'] = new_df.ix[:,:].sum(axis=1)/total * 100
+    total = np.sum(new_df.iloc[:,:].values)
+    new_df['percent'] = new_df.iloc[:,:].sum(axis=1)/total * 100
     
     #indexNamesArr = new_df.index.values
     #listOfRowIndexLabels = list(indexNamesArr)
@@ -106,64 +106,66 @@ def print_post_info(dataframe):
         print(dataframe)
         print(50*"--")
 
-def dataframe_city_country(dataframe):
-   
-    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+def dataframe_city_country(dataframe,typedf):
         start = str(dataframe['Date'].iloc[0])
         end = str(dataframe['Date'].iloc[-1])
-        
+
         #print(dataframe)
 
         last_date_top = transpose(dataframe)
         last_date_top = last_date_top.nlargest(5,0)
         first_values= last_date_top.iloc[:,0]
         last_values = last_date_top.iloc[:,-1]
-        
+
         new_df = pd.DataFrame()
         new_df['First Count'] = first_values
         new_df['Last Count'] = last_values
         new_df['Growth %'] = (((last_values-first_values)/last_values)*100).round(2)
         #last_date_top = end
 
-        
-        print(new_df)
+
+        print_locale_city_country(new_df,typedf)
+
+def print_locale_city_country(dataframe,typedf):
+        with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+                print("\n\nThese are the {a} stats of the page  \n\n".format(a=typedf))
+                print(dataframe)
+                print(50*"--")
 
 def main():
     
-    mypath="excels/lite/"
-    list_of_excel_files = [f for f in listdir(mypath) if isfile(join(mypath, f))]
-    print(list_of_excel_files)
-    
-    df_list=[]
+        mypath="excels/lite/"
+        list_of_excel_files = [f for f in listdir(mypath) if isfile(join(mypath, f))]
+        print(list_of_excel_files)
 
-    for item in list_of_excel_files:
-        path=mypath+item
+        df_dict={}
 
-        df_list.append(get_excel_to_panda(path))
-    
-    '''
-    df_page_info=df_list[1]
-    df_info,start_info,end_info =  dataframe_page_info(df_page_info)
-    print_page_info(df_info,start_info,end_info)
-    
-    df_post=df_list[2]
-    dataframe_post_info(df_post)
+        for item in list_of_excel_files:
+                path=mypath+item
 
-    df_ages=df_list[3]
-    dataframe_ages(df_ages)
-    
-    df_page_post_info= df_list[4]
-    df_info,start_info,end_info =  dataframe_page_info(df_page_post_info)
-    print_page_post(df_info,start_info,end_info)
-    '''
+                temp_dict = {item : get_excel_to_panda(path)}
+                df_dict.update(temp_dict)
 
 
-    df_country=df_list[2]
-    df_city=df_list[1]
-    df_locale = df_list[3]
-    
-    dataframe_city_country(df_country)
-    dataframe_city_country(df_city)
-    dataframe_city_country(df_locale)
+        df_country=df_dict['lite-Country.xlsx']
+        df_city=df_dict['lite-City.xlsx']
+        df_locale = df_dict['lite-Locale.xlsx']        
+        df_page_info=df_dict['lite-Page-Info.xlsx']
+        df_post=df_dict['lite-Post-Info.xlsx']
+        df_ages=df_dict['lite-Ages-Gender.xlsx']
+        df_page_post_info= df_dict['lite-Page-Post.xlsx']
+
+        df_info,start_info,end_info =  dataframe_page_info(df_page_info)
+        print_page_info(df_info,start_info,end_info)
+
+        df_info,start_info,end_info =  dataframe_page_info(df_page_post_info)
+        print_page_post(df_info,start_info,end_info)
+
+        dataframe_post_info(df_post)
+        dataframe_ages(df_ages)
+
+        dataframe_city_country(df_country,"Country")
+        dataframe_city_country(df_city,"City")
+        dataframe_city_country(df_locale,"Locale")
     
 main()
