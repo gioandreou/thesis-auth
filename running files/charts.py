@@ -56,7 +56,7 @@ def plot_city_country_locale(dataframe,typpe):
     plt.clf()
 
     top10.plot(kind='pie',autopct='%1.1f%%',textprops=dict(color="black"))
-    plt.ylabel('People that are talking about the Page',fontsize=15)
+    plt.ylabel('Fans of the Page',fontsize=15)
     plt.title('Top 10 Cities with Fans of the Page',fontsize=12)
     plt.savefig("charts_new/City-pie"+".png",dpi=300)
     print("City bar-pie was created!")
