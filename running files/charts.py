@@ -142,23 +142,50 @@ def plot_city_country_locale(dataframe,typpe):
             print(typpe+" Region bar-chart was created!")
             plt.clf()
 
-      
+
+def plot_page_info_page_post(dataframe,typpe):
+      '''
+      with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+            print(dataframe)
+      '''
+      labels=list(dataframe.columns.values)
+      #print(labels)
+      num=len(labels)
+      ax = plt.gca()
+      dataframe.plot(kind='line',x=labels[0],y=[labels[1],labels[2],labels[3],labels[4],labels[5],labels[6]],ax=ax)
+      plt.title(typpe)
+      plt.grid()
+      box = ax.get_position()
+      ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+      ax.legend(
+            title=typpe+" Categories",
+            loc='center left', bbox_to_anchor=(1, 0.5),
+            prop={'size': 4})
+      plt.savefig("charts_new/"+typpe+".png",dpi=300)
+      print(typpe+" successfully ploted")
+      plt.clf()
 
 
 def main():
-    '''
-    age_gender = pd.read_excel('excels/lite/lite-Ages-Gender.xlsx')
-    plot_ages_gender_df(age_gender)
-    '''
-    city = pd.read_excel('excels/lite/lite-City.xlsx')
-    plot_city_country_locale(city,"City")
+      '''
+      age_gender = pd.read_excel('excels/lite/lite-Ages-Gender.xlsx')
+      plot_ages_gender_df(age_gender)
 
-    country = pd.read_excel('excels/lite/lite-Country.xlsx')
-    plot_city_country_locale(country,"Country")
-    
-    locale = pd.read_excel('excels/lite/lite-Locale.xlsx')
-    plot_city_country_locale(locale,"Locale")
+      city = pd.read_excel('excels/lite/lite-City.xlsx')
+      plot_city_country_locale(city,"City")
 
+      country = pd.read_excel('excels/lite/lite-Country.xlsx')
+      plot_city_country_locale(country,"Country")
+
+      locale = pd.read_excel('excels/lite/lite-Locale.xlsx')
+      plot_city_country_locale(locale,"Locale")
+      '''
+
+      page_info = pd.read_excel('excels/lite/lite-Page-Info.xlsx')
+      plot_page_info(page_info,"Page Info Statistics")
+
+      page_post = pd.read_excel('excels/lite/lite-Page-Post.xlsx')
+      plot_page_info(page_post,"Page Post Statistics")
 
 
 main()
