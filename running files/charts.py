@@ -13,16 +13,13 @@ import plotly.io as pio
 
 def plot_ages_gender_df(dataframe):
     labels=list(dataframe.columns.values)
-    print(labels)
-    num=len(labels)
     ax = plt.gca()
     dataframe.plot(kind='line',x=labels[0],y=[labels[1],labels[2],labels[3],labels[4],labels[5],labels[6],labels[7]],ax=ax)
     plt.title("Women:"+"Age Fans Chart")
     ax.grid()
-    ax.legend(
-          title="Age Groups",
-          loc="center left",
-          bbox_to_anchor=(0,0,1,1))
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0, box.width * 0.9, box.height])
+    ax.legend(title="Ages",loc='center left', bbox_to_anchor=(1, 0.5),prop={'size': 5})
     plt.savefig("charts_new/"+"Age-Women"+".png",dpi=300)
     print("Age-Women successfully ploted")
     plt.clf()
@@ -31,17 +28,15 @@ def plot_ages_gender_df(dataframe):
     dataframe.plot(kind='line',x=labels[0],y=[labels[8],labels[9],labels[10],labels[11],labels[12],labels[13],labels[14]],ax=ax)
     plt.title("Men:"+"Age Fans Chart")
     ax.grid()
-    ax.legend(
-          title="Age Groups",
-          loc="center left",
-          bbox_to_anchor=(0,0,1,1))
+    box = ax.get_position()
+    ax.set_position([box.x0, box.y0, box.width * 0.9, box.height])
+    ax.legend(title="Ages",loc='center left', bbox_to_anchor=(1, 0.5),prop={'size': 5})
     plt.savefig("charts_new/"+"Age-Men"+".png",dpi=300)
     print("Age-Men successfully ploted")
     plt.clf()
 
 def plot_city_country_locale(dataframe,typpe):
       labels=list(dataframe.columns.values)
-      date=labels[0]
 
       sub_df= dataframe.iloc[:,1:]
       top10 = sub_df.mean().nlargest(10)
@@ -103,11 +98,21 @@ def plot_city_country_locale(dataframe,typpe):
       plt.ylabel('',fontsize=15)
       #ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),fancybox=True, shadow=True)
       plt.title('Top 10 '+typpe+' with Fans of the Page',fontsize=12)
+      '''
+      box = ax.get_position()
+      ax.set_position([box.x0, box.y0, box.width * 1.1, box.height])
+      plt.legend(
+            title=typpe,
+            loc='lower left', bbox_to_anchor=(1, 0.5),
+            prop={'size': 5})
+      '''
+      
       plt.savefig("charts_new/"+typpe+"-pie"+".png",dpi=300)
       print(typpe+" pie-chart was created!")
       plt.clf()
       
-      if typpe == "City":
+      #Create Region charts from city dataframe
+      if typpe == "City": 
             col_val = list(top10df.columns.values)
             col_val = [item.split(",",1)[1] for item in col_val]
             
@@ -128,7 +133,12 @@ def plot_city_country_locale(dataframe,typpe):
             fig, ax = plt.subplots(figsize=(12, 12))
             regionDf.plot(kind='pie',autopct='%1.1f%%',textprops=dict(color="black"),subplots=True)
             plt.ylabel('',fontsize=15)
-            plt.legend().set_visible(False)
+            box = ax.get_position()
+            ax.set_position([box.x0, box.y0, box.width * 0.9, box.height])
+            plt.legend(
+            title=" Regions",
+            loc='lower left', bbox_to_anchor=(1, 0.5),
+            prop={'size': 5})
             plt.title('Top 10 '+typpe+' with Fans of the Page',fontsize=12)
             plt.savefig("charts_new/"+typpe+"Region-pie"+".png",dpi=300)
             print(typpe+" Region pie-chart was created!")
@@ -136,7 +146,7 @@ def plot_city_country_locale(dataframe,typpe):
             
             fig, ax = plt.subplots(figsize=(12, 12))
             regionDf.plot(kind='bar',use_index=True,position=0.8, grid=True,fontsize=8,rot=6,)
-            plt.title('Top 10 '+typpe+' with Fans of the Page',fontsize=12)
+            plt.title('Top Regions '+typpe+' with Fans of the Page',fontsize=12)
             plt.ylabel('Chart',fontsize=12)
             plt.savefig("charts_new/"+typpe+"Region-bar"+".png",dpi=300)
             print(typpe+" Region bar-chart was created!")
@@ -150,24 +160,23 @@ def plot_page_info_page_post(dataframe,typpe):
       '''
       labels=list(dataframe.columns.values)
       #print(labels)
-      num=len(labels)
       ax = plt.gca()
       dataframe.plot(kind='line',x=labels[0],y=[labels[1],labels[2],labels[3],labels[4],labels[5],labels[6]],ax=ax)
       plt.title(typpe)
       plt.grid()
       box = ax.get_position()
-      ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
+      ax.set_position([box.x0, box.y0, box.width * 0.9, box.height])
       ax.legend(
-            title=typpe+" Categories",
+            title=" Categories",
             loc='center left', bbox_to_anchor=(1, 0.5),
-            prop={'size': 4})
+            prop={'size': 10})
       plt.savefig("charts_new/"+typpe+".png",dpi=300)
       print(typpe+" successfully ploted")
       plt.clf()
 
 
 def main():
-      '''
+      
       age_gender = pd.read_excel('excels/lite/lite-Ages-Gender.xlsx')
       plot_ages_gender_df(age_gender)
 
@@ -179,13 +188,13 @@ def main():
 
       locale = pd.read_excel('excels/lite/lite-Locale.xlsx')
       plot_city_country_locale(locale,"Locale")
-      '''
+      
 
       page_info = pd.read_excel('excels/lite/lite-Page-Info.xlsx')
-      plot_page_info(page_info,"Page Info Statistics")
+      plot_page_info_page_post(page_info,"Page Info Statistics")
 
       page_post = pd.read_excel('excels/lite/lite-Page-Post.xlsx')
-      plot_page_info(page_post,"Page Post Statistics")
+      plot_page_info_page_post(page_post,"Page Post Statistics")
 
 
 main()
