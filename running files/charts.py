@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as dates
+import plotly.graph_objs as go
+import plotly.io as pio
 
 
 
@@ -38,29 +40,109 @@ def plot_ages_gender_df(dataframe):
     plt.clf()
 
 def plot_city_country_locale(dataframe,typpe):
-    labels=list(dataframe.columns.values)
-    date=labels[0]
+      labels=list(dataframe.columns.values)
+      date=labels[0]
 
-    sub_df= dataframe.iloc[:,1:]
-    top10 = sub_df.mean().nlargest(10)
-   
-    print(top10)
-   
-    fig, ax = plt.subplots(figsize=(12, 12))
-    top10.plot(kind='bar',use_index=True,position=0.8, grid=True,fontsize=8,rot=6,)
-    #plt.ylabel('People that are talking about the Page',fontsize=15)
-    plt.title('Top 10 Cities with Fans of the Page',fontsize=12)
-    plt.ylabel('Chart',fontsize=12)
-    plt.savefig("charts_new/City-bar"+".png",dpi=300)
-    print("City bar-chart was created!")
-    plt.clf()
+      sub_df= dataframe.iloc[:,1:]
+      top10 = sub_df.mean().nlargest(10)
+      
+      top10df = top10.to_frame()
+      top10df= top10df.T 
+      
+      #print(regionDf)
 
-    top10.plot(kind='pie',autopct='%1.1f%%',textprops=dict(color="black"))
-    plt.ylabel('Fans of the Page',fontsize=15)
-    plt.title('Top 10 Cities with Fans of the Page',fontsize=12)
-    plt.savefig("charts_new/City-pie"+".png",dpi=300)
-    print("City bar-pie was created!")
-    plt.clf()
+      '''
+      FAILED TRY FOR DOUBLE DONUT CHART
+      labels_outer = labels
+      labels_inner = list(regionDf.columns.values)
+      outer_values = top10df
+      inner_values = regionDf
+
+
+      trace1 = go.Pie(
+      hole=0.5,
+      sort=False,
+      direction='clockwise',
+      domain={'x': [0.15, 0.85], 'y': [0.15, 0.85]},
+      values=inner_values,
+      labels=labels_inner,
+      textinfo='label',
+      textposition='inside',
+      marker={'line': {'color': 'white', 'width': 1}}
+      )
+
+      trace2 = go.Pie(
+      hole=0.7,
+      sort=False,
+      direction='clockwise',
+      values=outer_values,
+      labels=labels_outer,
+      textinfo='label',
+      textposition='outside',
+      marker={'colors': ['green', 'red', 'blue'],
+                  'line': {'color': 'white', 'width': 1}}
+      )
+
+      fig = go.FigureWidget(data=[trace1, trace2])
+      pio.write_image(fig, 'charts_new/fig1.png')
+      #fig.savefig("charts_new/region-pie"+".png",dpi=300)
+      '''
+
+      
+      fig, ax = plt.subplots(figsize=(12, 12))
+      top10.plot(kind='bar',use_index=True,position=0.8, grid=True,fontsize=8,rot=6,)
+     
+      plt.title('Top 10 '+typpe+' with Fans of the Page',fontsize=12)
+      plt.ylabel('Chart',fontsize=12)
+      plt.savefig("charts_new/"+typpe+"-bar"+".png",dpi=300)
+      print(typpe+" bar-chart was created!")
+      plt.clf()
+
+      fig, ax = plt.subplots(figsize=(12, 12))
+      top10.plot(kind='pie',autopct='%1.1f%%',textprops=dict(color="black"))
+      plt.ylabel('',fontsize=15)
+      #ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.05),fancybox=True, shadow=True)
+      plt.title('Top 10 '+typpe+' with Fans of the Page',fontsize=12)
+      plt.savefig("charts_new/"+typpe+"-pie"+".png",dpi=300)
+      print(typpe+" pie-chart was created!")
+      plt.clf()
+      
+      if typpe == "City":
+            col_val = list(top10df.columns.values)
+            col_val = [item.split(",",1)[1] for item in col_val]
+            
+            col_val=set(col_val) #list with different region names
+            temp_dict = {}
+            for item in col_val:
+                  value=0
+                  for col in top10df: 
+                        if item in col :
+                              value = value + top10df[col].sum()
+                  #print("region: "+str(item)+" "+str(value))
+                  temp_dict.update({item:value})
+                  
+            regionDf = pd.DataFrame()
+            regionDf = regionDf.from_dict(temp_dict,orient='index')
+
+
+            fig, ax = plt.subplots(figsize=(12, 12))
+            regionDf.plot(kind='pie',autopct='%1.1f%%',textprops=dict(color="black"),subplots=True)
+            plt.ylabel('',fontsize=15)
+            plt.legend().set_visible(False)
+            plt.title('Top 10 '+typpe+' with Fans of the Page',fontsize=12)
+            plt.savefig("charts_new/"+typpe+"Region-pie"+".png",dpi=300)
+            print(typpe+" Region pie-chart was created!")
+            plt.clf()
+            
+            fig, ax = plt.subplots(figsize=(12, 12))
+            regionDf.plot(kind='bar',use_index=True,position=0.8, grid=True,fontsize=8,rot=6,)
+            plt.title('Top 10 '+typpe+' with Fans of the Page',fontsize=12)
+            plt.ylabel('Chart',fontsize=12)
+            plt.savefig("charts_new/"+typpe+"Region-bar"+".png",dpi=300)
+            print(typpe+" Region bar-chart was created!")
+            plt.clf()
+
+      
 
 
 def main():
@@ -70,6 +152,13 @@ def main():
     '''
     city = pd.read_excel('excels/lite/lite-City.xlsx')
     plot_city_country_locale(city,"City")
+
+    country = pd.read_excel('excels/lite/lite-Country.xlsx')
+    plot_city_country_locale(country,"Country")
+    
+    locale = pd.read_excel('excels/lite/lite-Locale.xlsx')
+    plot_city_country_locale(locale,"Locale")
+
 
 
 main()
