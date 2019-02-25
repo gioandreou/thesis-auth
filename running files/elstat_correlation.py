@@ -7,17 +7,20 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as dates
 import plotly.graph_objs as go
 import plotly.io as pio
+from tabulate import tabulate
 
 
-def print_dataframes_excels(filename):
+def print_dataframes_excels(dataframe):
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-            print(filename)
-
+            labels_list = list(dataframe.index)
+            rows = dataframe.loc[ [ (' Thessaly, Greece', 'Male'), ('Thessaly, Greece', 'Female') ] ,'Total'   ]
+            print(rows)
 
 
 
 def main():
     education = pd.read_excel('excels/elstat/formated epipedo ekpaideusis.xlsx')
+    print_dataframes_excels(education)
 
 
 
