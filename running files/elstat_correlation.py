@@ -33,25 +33,49 @@ def print_dataframes_education(regions,dataframe):
         region_df['Higher Education']= (higher_edu.map(str)+"--["+percen_higher.map(str)+ "%]")
         region_df['Middle Education']= (middle_edu.map(str)+"--["+percen_middle.map(str)+ "%]")
         region_df['Lower Education']= (lower_edu.map(str)+"--["+percen_lower.map(str)+ "%]")
-        region_df['Higher Education Percentage[%]']= (percen_higher)
-        region_df['Middle Education Percentage[%]']= (percen_middle)
-        region_df['Lower Education Percentage[%]']= (percen_lower)
+        region_df['Higher Education Percentage[%]']= percen_higher
+        region_df['Middle Education Percentage[%]']= percen_middle
+        region_df['Lower Education Percentage[%]']= percen_lower
         
         all_regions_label_list = ['Greece','Eastern Macedonia and Thrace, Greece','Central Macedonia, Greece','Western Macedonia, Greece','Epirus (region), Greece','Thessaly, Greece','Central Greece (region), Greece',
                                 'Ionian Islands (region), Greece','Western Greece, Greece','Peloponnese (region), Greece','Attica (region), Greece','Northern Aegean, Greece','Southern Aegean, Greece','Crete, Greece']
-        
+        '''
         print(intial_region_list)
-        print(regions.loc[(' Western Macedonia, Greece'),:]) ##sos thelei keno prin to label
+        print(regions.loc[(intial_region_list[0]),:]) ##sos thelei keno prin to label
         '''
         for item in regions_labels_list:
-            print("\n")
+            print("\n\n")
+            print(50*"--")
             print(item)
             print(region_df.loc[(item),['Total','Higher Education','Middle Education','Lower Education']])
-            print("Facebook Page Correlation:\n")
-            #higher = regions[item]
-            #print(higher)
-            print("\n")
-        '''
+            print("\nFacebook Page Correlation:\n")
+            region = " "+item 
+            value = regions.loc[(region),:].item()
+
+            #print("Fans: {a}".format(a=value))
+            higher_percent_male = region_df.loc[(item),['Higher Education Percentage[%]']].values[0]
+            higher_percent_female = region_df.loc[(item),['Higher Education Percentage[%]']].values[1]
+
+            middle_percent_male = region_df.loc[(item),['Middle Education Percentage[%]']].values[0]
+            middle_percent_female = region_df.loc[(item),['Middle Education Percentage[%]']].values[1]
+
+            lower_percent_male = region_df.loc[(item),['Lower Education Percentage[%]']].values[0]
+            lower_percent_female = region_df.loc[(item),['Lower Education Percentage[%]']].values[1]
+            
+            print("Higher Edu: Male={a}\t Female={b}\t".format(
+                a=value*higher_percent_male/100, 
+                b=value*higher_percent_female/100, 
+                ))
+            print("Middle Edu: Male={a}\t Female={b}\t".format(
+                a=value*middle_percent_male/100, 
+                b=value*middle_percent_female/100, 
+                ))
+            print("Lower Edu: Male={a}\t Female={b}\t".format(
+                a=value*lower_percent_male/100, 
+                b=value*lower_percent_female/100, 
+                ))
+            
+        
 
 def main():
 
