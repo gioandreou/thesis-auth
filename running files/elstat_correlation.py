@@ -9,6 +9,12 @@ import plotly.graph_objs as go
 import plotly.io as pio
 from tabulate import tabulate
 
+def border_msg(msg):
+    row = len(msg)
+    h = ''.join(['+'] + ['-' *row] + ['+'])
+    result= h + '\n'"|"+msg+"|"'\n' + h
+    print(result)
+
 def striplist(l):
     return([x.strip() for x in l])
 
@@ -21,9 +27,9 @@ def transpose(dataframe,condition): #FUNCTION THAT TRANSPOSES THE DATAFRMES COND
     return dataframe
 
 def print_dataframes_education(regions,dataframe):
+    border_msg('EDUCATIONAL STATS')
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-        intial_region_list = list(regions.index) #LIST WITH THE REGIONS THAT EXIST IN FB PAGE
-        regions_labels_list=striplist(intial_region_list) #LIST ITEMS WITHOUT LEADING SPACE E.X." NAME"
+        regions_labels_list = list(regions.index) #LIST WITH THE REGIONS THAT EXIST IN FB PAGE
         
         region_df = pd.DataFrame() #NEW DF TO STORE THE FORMATED DATA
         region_df['Total']=dataframe['Total']
@@ -51,8 +57,9 @@ def print_dataframes_education(regions,dataframe):
         region_df['Lower Education Percentage[%]']= percen_lower
         
         #ALL THE REGIONS IN GREECE THAT FB CAN USE. UNUSED 
-        all_regions_label_list = ['Greece','Eastern Macedonia and Thrace, Greece','Central Macedonia, Greece','Western Macedonia, Greece','Epirus (region), Greece','Thessaly, Greece','Central Greece (region), Greece',
-                                'Ionian Islands (region), Greece','Western Greece, Greece','Peloponnese (region), Greece','Attica (region), Greece','Northern Aegean, Greece','Southern Aegean, Greece','Crete, Greece']
+        #print(regions_labels_list)
+        #print(region_df)
+        
         
         for item in regions_labels_list:
             print("\n\n")
@@ -64,8 +71,8 @@ def print_dataframes_education(regions,dataframe):
             print("\nFacebook Page Correlation:\n")
             
             #ADD A LEADING WHITESPACE TO THE NAME INORDER TO BE MATCHED WITH THE INDEXES OF THE REGIONS DF
-            region = " "+item 
-            value = regions.loc[(region),:].item()
+            #region = " "+item 
+            value = regions.loc[(item),:].item()
 
             #PASS THE VALUES OF MALES AND FEMALES FOR HIGHER, MID, LOWER EDUCATION 
             higher_percent_male = region_df.loc[(item),['Higher Education Percentage[%]']].values[0]
@@ -79,19 +86,21 @@ def print_dataframes_education(regions,dataframe):
             
             #PRETTY PRINTING
             print("Higher Edu: Male={a}\t Female={b}\t".format(
-                a=value*higher_percent_male/100, 
-                b=value*higher_percent_female/100, 
+                a=(value*higher_percent_male/100).round(2), 
+                b=(value*higher_percent_female/100).round(2), 
                 ))
             print("Middle Edu: Male={a}\t Female={b}\t".format(
-                a=value*middle_percent_male/100, 
-                b=value*middle_percent_female/100, 
+                a=(value*middle_percent_male/100).round(2), 
+                b=(value*middle_percent_female/100).round(2), 
                 ))
             print("Lower Edu: Male={a}\t Female={b}\t".format(
-                a=value*lower_percent_male/100, 
-                b=value*lower_percent_female/100, 
+                a=(value*lower_percent_male/100).round(2), 
+                b=(value*lower_percent_female/100).round(2), 
                 ))
-            
+        border_msg('END OF EDUCATIONAL STATS')
+
 def print_dataframe_age_occupation(regions,dataframe):
+    border_msg('AGE AND OCCUPATIONAL STATS')
     age_dataframe = pd.read_excel('excels/lite/lite-Ages-Gender.xlsx')
     transp_age_df = transpose(age_dataframe,1)
 
@@ -128,8 +137,10 @@ def print_dataframe_age_occupation(regions,dataframe):
         print(percentages_ages_df)
 
         #print(dataframe.loc[('Female', 'F.13-17'),:])
+    border_msg('END OF AGE AND OCCUPATIONAL STATS')
 
 def print_dataframe_family(regions,dataframe):
+    border_msg('FAMILY STATUS STATS')
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
         intial_region_list = list(regions.index) #LIST WITH THE REGIONS THAT EXIST IN FB PAGE
         regions_labels_list=striplist(intial_region_list) #LIST ITEMS WITHOUT LEADING SPACE E.X." NAME"
@@ -154,8 +165,8 @@ def print_dataframe_family(regions,dataframe):
             #PRINT THE STATS OF ELSTAT FOR THIS REGION
             print(regions_family_df.loc[(item),:])
             print("\nFacebook Page Correlation:\n")
-            region = " "+item 
-            value = regions.loc[(region),:].item()
+            
+            value = regions.loc[(item),:].item()
             print("Fans of Both Genders Non Married in FB Page :\t{a}".format(a=(value*regions_family_df.loc[(item),['Both Genders Non Married %']].values[0]/100).round(0)))
             print("Fans of Both Genders Married in FB Page :\t{a}".format(a=(value*regions_family_df.loc[(item),['Both Genders Married %']].values[0]/100).round(0)))
             print("Fans of Both Genders Widower in FB Page :\t{a}".format(a=(value*regions_family_df.loc[(item),['Both Genders Widower %']].values[0]/100).round(0)))
@@ -171,21 +182,21 @@ def print_dataframe_family(regions,dataframe):
         #print(dataframe)
         #print(regions)
 
-
+    border_msg('END OF FAMILY STATUS STATS')
 def main():
 
     regions = pd.read_excel('excels/lite/RegionDF.xlsx')
     
-    '''
+    
     education = pd.read_excel('excels/elstat/formated epipedo ekpaideusis.xlsx')
     print_dataframes_education(regions,education)
     
     occupation = pd.read_excel('excels/elstat/formated katastasi asxolias greece.xlsx')
     print_dataframe_age_occupation(regions,occupation)
-    '''
+    
     family = pd.read_excel('excels/elstat/formated oikogeneiaki katastasi.xlsx')
     print_dataframe_family(regions,family)
-
+    
 
 
 main()
