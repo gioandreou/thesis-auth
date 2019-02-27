@@ -131,10 +131,11 @@ def plot_city_country_locale(dataframe,typpe):
             regionDf = regionDf.from_dict(temp_dict,orient='index')
 
             #write regionDF to excel 
+            '''
             writer = ExcelWriter('excels/lite/RegionDF.xlsx')
             regionDf.to_excel(writer,'Sheet1')
             writer.save()
-
+            '''
 
             fig, ax = plt.subplots(figsize=(12, 12))
             regionDf.plot(kind='pie',autopct='%1.1f%%',textprops=dict(color="black"),subplots=True)
