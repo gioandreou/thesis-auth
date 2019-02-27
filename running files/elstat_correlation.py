@@ -192,6 +192,7 @@ def print_dataframe_family(regions,dataframe):
         #print(regions)
 
     border_msg('END OF FAMILY STATUS STATS')
+
 def main():
 
     regions = pd.read_excel('excels/lite/RegionDF.xlsx')
