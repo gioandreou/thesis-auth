@@ -1,7 +1,8 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-import plotly.graph_objs as go
+from dash.dependencies import Input, Output, State
+from datetime import datetime
 import pandas as pd
 
 
@@ -15,6 +16,34 @@ df_page_info = pd.read_excel('excels/lite/lite-Page-Info.xlsx')
 
 df_page_post = pd.read_excel('excels/lite/lite-Page-Post.xlsx')
 
+df_cities = pd.read_excel('excels/lite/lite-City.xlsx')
+#cities = cities.T
+list_cities=list(df_cities.columns)
+list_cities=list_cities[1:]
+options_cities=[]
+
+df_countries = pd.read_excel('excels/lite/lite-Country.xlsx')
+#cities = cities.T
+list_countries=list(df_countries.columns)
+list_countries=list_countries[1:]
+options_countries=[]
+
+for city in list_cities:
+    options_cities.append({'label':'{} '.format(city), 'value':city})
+
+for country in list_countries:
+    options_countries.append({'label':'{} '.format(country), 'value':country})
+
+df_posts = pd.read_excel('excels/lite/lite-Post-Info.xlsx')
+
+list_post_ids = list(df_posts['ID'])
+
+options_posts=[]
+
+for post_id in list_post_ids:
+    options_posts.append({'label':'{} '.format(df_posts.loc[df_posts['ID']==post_id]['Message'].item()), 'value':post_id})
+
+
 colors = {
     'background': '#ffffff',
     'text': '#191919',
@@ -25,15 +54,22 @@ graph_fonts={
                     'size':'18',
                     'color':colors['text']
                 }
-style_fonts = style={
+style_fonts ={
             'textAlign': 'center',
             'color': colors['text'],
             'fontFamily':'Helvetica',
             'fontSize':'30px'
         }
+style_fonts_select ={
+            'textAlign': 'left',
+            'color': colors['text'],
+            'fontFamily':'Helvetica',
+            'fontSize':'25px'
+        }
+
 app.layout = html.Div(children=[
     html.H1(
-        children='Andreou George Thesis',
+        children='Dashboard of Andreou George Thesis',
         style=style_fonts
     ),
 
@@ -137,10 +173,177 @@ app.layout = html.Div(children=[
             }
         }
     ),
+    html.Div([
+                html.H3('Select Cities:', style=style_fonts),
+                dcc.Dropdown(
+                id='my_ticker_symbol_cities',
+                options=options_cities,
+                value=['City'],
+                multi=True,
+                style={'fontSize':16}
+            )
+                ],          
+                style={'display':'inline-block', 'verticalAlign':'top', 'width':'30%'}),
+            
+    html.Div([
+    html.Button(
+                id='submit-button-cities',
+                n_clicks=0,
+                children='Submit',
+                style={'fontSize':24, 'marginLeft':'30px'}
+            ),
+            ], style={'display':'inline-block'}),
+    dcc.Graph(
+            id='my_graph_cities',
+            figure={
+                'data': [
+                    {'x': [1,2], 'y': [3,1]}
+            ],'layout': {
+                'plot_bgcolor': colors['background'],
+                'paper_bgcolor': colors['background'],
+                'font': graph_fonts,
+                'title': 'City Plot'
+            }
+        }
+),html.Div([
+                html.H3('Select Countries:', style=style_fonts),
+                dcc.Dropdown(
+                id='my_ticker_symbol_countries',
+                options=options_countries,
+                value=['Country'],
+                multi=True,
+                style={'fontSize':16}
+            )
+                ],          
+                style={'display':'inline-block', 'verticalAlign':'top', 'width':'30%'}),
+            html.Div([
+            html.Button(
+                id='submit-button-countries',
+                n_clicks=0,
+                children='Submit',
+                style={'fontSize':24, 'marginLeft':'30px'}
+            ),
+            ], style={'display':'inline-block'}),
+            dcc.Graph(
+            id='my_graph_countries',
+            figure={
+                'data': [
+                    {'x': [1,2], 'y': [3,1]}
+            ],'layout': {
+                'plot_bgcolor': colors['background'],
+                'paper_bgcolor': colors['background'],
+                'font': graph_fonts,
+                'title': 'Country Plot'
+            }
+        }
+),
+html.Div([
+                html.H3('Select Posts:', style=style_fonts),
+                dcc.Dropdown(
+                id='my_ticker_symbol_posts',
+                options=options_posts,
+                value=['Post'],
+                multi=False,
+                style={'fontSize':16}
+                
+            )
+                ],          
+                style={'display':'inline-block', 'verticalAlign':'top', 'width':'30%'}),
+                html.Div([
+                html.Button(
+                id='submit-button-posts',
+                n_clicks=0,
+                children='Submit',
+                style={'fontSize':24, 'marginLeft':'30px'}
+            ),
+            ], style={'display':'inline-block'}),
+            dcc.Graph(
+            id='my_graph_posts',
+            figure={
+                'data': [
+                    {'x':['Impressions'], 'y': df_posts.loc[df_posts['ID']=='974146599436745_974147879436617']['Impressions'],'type':'bar','name': '%'},
+                    {'x':['Impressions Paid'], 'y': df_posts.loc[df_posts['ID']=='974146599436745_974147879436617']['Impressions Paid'],'type':'bar','name': '%'},
+                    {'x':['Impressions Organic'], 'y': df_posts.loc[df_posts['ID']=='974146599436745_974147879436617']['Impressions Organic'],'type':'bar','name': '%'},
+                    {'x':['Impressions Fans'], 'y': df_posts.loc[df_posts['ID']=='974146599436745_974147879436617']['Impressions Fans'],'type': 'bar','name': '%'},
+                    {'x':['Impressions Fans Paid'], 'y': df_posts.loc[df_posts['ID']=='974146599436745_974147879436617']['Impressions Fans Paid'],'type': 'bar','name': '%'},
+                    {'x':['Enganged Users'], 'y': df_posts.loc[df_posts['ID']=='974146599436745_974147879436617']['Enganged Users'],'type': 'bar','name': '%'},
+                    {'x':['Impressions Viral'], 'y': df_posts.loc[df_posts['ID']=='974146599436745_974147879436617']['Impressions Viral'],'type': 'bar','name': '%'},
+                    {'x':['Total Reactions'], 'y': df_posts.loc[df_posts['ID']=='974146599436745_974147879436617']['Total Reactions'],'type': 'bar','name': '%'}
+            ]
+        })
 
     ],
-    style=style_fonts
+    style=style_fonts_select
 )
+@app.callback(
+    Output('my_graph_cities', 'figure'),
+    [Input('submit-button-cities', 'n_clicks')],
+    [State('my_ticker_symbol_cities', 'value')])
+def update_graph_cities(n_clicks, cities_ticker):
+    traces_city = []
+    for tic in cities_ticker:
+        #df = web.DataReader(tic,'iex',start,end)
+        traces_city.append({'x':df_cities['Date'], 'y': df_cities[tic], 'name':tic})
+        figure_city = {
+        'data': traces_city,
+        'layout': {'title':'  &&  '.join(cities_ticker)}
+    }
+    return figure_city
+
+@app.callback(
+    Output('my_graph_countries', 'figure'),
+    [Input('submit-button-countries', 'n_clicks')],
+    [State('my_ticker_symbol_countries', 'value'),
+    ])
+def update_graph_countries(n_clicks, countries_ticker):
+    traces_country = []
+    for tic in countries_ticker:
+        #df = web.DataReader(tic,'iex',start,end)
+        traces_country.append({'x':df_countries['Date'], 'y': df_countries[tic], 'name':tic})
+        figure_country = {
+        'data': traces_country,
+        'layout': {'title':'  &&  '.join(countries_ticker)}
+    }
+    return figure_country
+
+
+@app.callback(
+    Output('my_graph_posts', 'figure'),
+    [Input('submit-button-posts', 'n_clicks')],
+    [State('my_ticker_symbol_posts', 'value')])
+def update_graph_posts(n_clicks, posts_ticker):
+    traces_posts = []
+    #for tic in posts_ticker:
+    traces_posts=([
+                    {'x':['Impressions'], 'y': [df_posts.loc[df_posts['ID']==posts_ticker]['Impressions'].item()],'type':'bar',
+                    'name':'100%'},
+                    
+                    {'x':['Impressions Paid'], 'y': [df_posts.loc[df_posts['ID']==posts_ticker]['Impressions Paid'].item()],'type':'bar',
+                    'name':str(round(df_posts.loc[df_posts['ID']==posts_ticker]['Impressions Paid'].item()/df_posts.loc[df_posts['ID']==posts_ticker]['Impressions'].item()*100,2))+'%'},
+                    
+                    {'x':['Impressions Organic'], 'y': [df_posts.loc[df_posts['ID']==posts_ticker]['Impressions Organic'].item()],'type':'bar',
+                    'name':str(round(df_posts.loc[df_posts['ID']==posts_ticker]['Impressions Organic'].item()/df_posts.loc[df_posts['ID']==posts_ticker]['Impressions'].item()*100,2))+'%'},
+                    
+                    {'x':['Impressions Fans'], 'y': [df_posts.loc[df_posts['ID']==posts_ticker]['Impressions Fans'].item()],'type':'bar',
+                    'name':str(round(df_posts.loc[df_posts['ID']==posts_ticker]['Impressions Fans'].item()/df_posts.loc[df_posts['ID']==posts_ticker]['Impressions'].item()*100,2))+'%'},
+                    
+                    {'x':['Impressions Fans Paid'], 'y': [df_posts.loc[df_posts['ID']==posts_ticker]['Impressions Fans Paid'].item()],'type':'bar',
+                    'name':str(round(df_posts.loc[df_posts['ID']==posts_ticker]['Impressions Fans Paid'].item()/df_posts.loc[df_posts['ID']==posts_ticker]['Impressions'].item()*100,2))+'%'},
+                    
+                    {'x':['Enganged Users'], 'y': [df_posts.loc[df_posts['ID']==posts_ticker]['Enganged Users'].item()],'type':'bar',
+                    'name':str(round(df_posts.loc[df_posts['ID']==posts_ticker]['Enganged Users'].item()/df_posts.loc[df_posts['ID']==posts_ticker]['Impressions'].item()*100,2))+'%'},
+                    
+                    {'x':['Impressions Viral'], 'y': [df_posts.loc[df_posts['ID']==posts_ticker]['Impressions Viral'].item()],'type':'bar',
+                    'name':str(round(df_posts.loc[df_posts['ID']==posts_ticker]['Impressions Viral'].item()/df_posts.loc[df_posts['ID']==posts_ticker]['Impressions'].item()*100,2))+'%'},
+                    
+                    {'x':['Total Reactions'], 'y': [df_posts.loc[df_posts['ID']==posts_ticker]['Total Reactions'].item()],'type':'bar',
+                    'name':str(round(df_posts.loc[df_posts['ID']==posts_ticker]['Total Reactions'].item()/df_posts.loc[df_posts['ID']==posts_ticker]['Impressions'].item()*100,2))+'%'}
+            ])
+        
+    figure_posts = {
+    'data': traces_posts,
+    'layout': {'title':'Message: '+df_posts.loc[df_posts['ID']==posts_ticker]['Message'].item()}}
+    return figure_posts
 
 if __name__ == '__main__':
     app.run_server(debug=True)
