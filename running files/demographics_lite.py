@@ -60,12 +60,13 @@ def create_age_gender(): #working 100%
         #write_age_gender_in_xlsx(page_age_gender_day,age_gender_path_direc)
         #calling functions
             #content
+        print(page_age_gender_day)
         
         if os.path.isfile(age_gender_path_direc):
             update_age_gender_in_xlsx(page_age_gender_day,age_gender_path_direc)
         else:
             write_age_gender_in_xlsx(page_age_gender_day,age_gender_path_direc)  
-
+        
     def write_age_gender_in_xlsx(dictionary, name_xlsx):
         workbook = xlsxwriter.Workbook(name_xlsx)
         worksheet = workbook.add_worksheet()
@@ -73,7 +74,7 @@ def create_age_gender(): #working 100%
         worksheet.write(0, 0,'Date')
         date=list(dictionary.keys())[0]
         date_to_write= date.split("T",1)[0] #old
-        date_to_write = datetime.strptime(date_to_write, '%Y-%m-%d').strftime("%d-%m-%Y")
+        date_to_write = datetime.strptime(date_to_write, '%Y-%m-%d').strftime("%-d/%-m/%Y")
         
         All_Ages = list(dictionary[date].keys())
         row=0
@@ -92,20 +93,26 @@ def create_age_gender(): #working 100%
         ws = wb2.active
         last_row = ws.max_row
         date=list(dictionary.keys())[0]
-        date_to_write= date.split("T",1)[0] #old
-        date_to_write = datetime.strptime(date_to_write, '%Y-%m-%d').strftime("%d-%m-%Y")
+        date_to_write= date.split("T",1)[0] #date without the T e.g. 2019-03-05T08:00:00+0000->2019-03-05
+        date_to_write = datetime.strptime(date_to_write, '%Y-%m-%d').strftime("%-d/%-m/%Y")
         ws.cell(last_row+1,1).value = date_to_write
 
         All_Ages = list(dictionary[date].keys())
         col=2
-        for i in range(len(All_Ages)):
-            ws.cell(last_row+1,col).value = dictionary[date][All_Ages[i]]
-            col +=1
-        
+        for item in range(len(All_Ages)):
+            found=False
+            minpos=item+col
+            while(found==False):
+                if(ws.cell(1,minpos).value == All_Ages[item]):
+                    posisition_found=minpos
+                    found=True
+                    #print('Found: {a} at {b}'.format(a=All_Ages[item], b=posisition_found))
+                    ws.cell(last_row+1,posisition_found).value = dictionary[date][All_Ages[item]]
+                minpos=minpos+1
         wb2.save(name_xlsx)
         #put_zeros_in_empty_cells(name_xlsx)
         put_zeros_in_empty_cells(name_xlsx)
-        print(name_xlsx + " is updated!")
+        print(name_xlsx + " is updated!")   
 
     get_age()
 
@@ -132,7 +139,7 @@ def create_locale(): #working 100%
         worksheet.write(0, 0,'Date')
         date=list(dictionary.keys())[0]
         date_to_write= date.split("T",1)[0] #old
-        date_to_write = datetime.strptime(date_to_write, '%Y-%m-%d').strftime("%d-%m-%Y")
+        date_to_write = datetime.strptime(date_to_write, '%Y-%m-%d').strftime("%-d/%-m/%Y")
         #date_to_write=date_to_write.strftime("%d/%m/%y")
         worksheet.write(1, 0,date_to_write)
         
@@ -155,7 +162,7 @@ def create_locale(): #working 100%
         #write date to 1st column last row
         date=list(dictionary.keys())[0]
         date_to_write= date.split("T",1)[0] #old
-        date_to_write = datetime.strptime(date_to_write, '%Y-%m-%d').strftime("%d-%m-%Y")
+        date_to_write = datetime.strptime(date_to_write, '%Y-%m-%d').strftime("%-d/%-m/%Y")
         
         ws.cell(last_row+1,1).value = date_to_write
 
@@ -242,7 +249,7 @@ def create_city_country():
         worksheet.write(0, 0,'Date')
         date=list(dictionary.keys())[0]
         date_to_write= date.split("T",1)[0] #old
-        date_to_write = datetime.strptime(date_to_write, '%Y-%m-%d').strftime("%d-%m-%Y")
+        date_to_write = datetime.strptime(date_to_write, '%Y-%m-%d').strftime("%-d/%-m/%Y")
         worksheet.write(1, 0,date_to_write)
 
         All_Cities = list(dictionary[date].keys())
@@ -264,7 +271,7 @@ def create_city_country():
         #write date to 1st column last row
         date=list(dictionary.keys())[0]
         date_to_write= date.split("T",1)[0] #old
-        date_to_write = datetime.strptime(date_to_write, '%Y-%m-%d').strftime("%d-%m-%Y")
+        date_to_write = datetime.strptime(date_to_write, '%Y-%m-%d').strftime("%-d/%-m/%Y")
         ws.cell(last_row+1,1).value = date_to_write
 
         All_cities = list(dictionary[date].keys())
