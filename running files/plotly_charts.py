@@ -47,7 +47,6 @@ for post_id in list_post_ids:
 colors = {
     'background': '#ffffff',
     'text': '#191919',
-    'pattern':'Images/what-the-hex.png'
 }
 graph_fonts={
                     'family':'sans-serif',
@@ -60,11 +59,12 @@ style_fonts ={
             'fontFamily':'Helvetica',
             'fontSize':'30px'
         }
-style_fonts_select ={
+style_whole_div ={
             'textAlign': 'left',
             'color': colors['text'],
             'fontFamily':'Helvetica',
-            'fontSize':'25px'
+            'fontSize':'25px',
+            'background-image': 'url(Images/what-the-hex.png)'
         }
 
 app.layout = html.Div(children=[
@@ -273,7 +273,7 @@ html.Div([
         })
 
     ],
-    style=style_fonts_select
+    style=style_whole_div
 )
 @app.callback(
     Output('my_graph_cities', 'figure'),

@@ -99,7 +99,7 @@ def create_page_info():
         #writting first line with date 
         worksheet.write(0, 0,'Date')
         date_to_write= date.split("T",1)[0] #old
-        date_to_write = datetime.strptime(date_to_write, '%Y-%m-%d').strftime("%d-%m-%Y")
+        date_to_write = datetime.strptime(date_to_write, '%Y-%m-%d').strftime("%-d/%-m/%Y")
         worksheet.write(1, 0,date_to_write)
         All_titles = list(dictionary.keys())
         row=0
@@ -118,7 +118,7 @@ def create_page_info():
         ws = wb2.active
         last_row = ws.max_row
         date_to_write= date.split("T",1)[0]
-        date_to_write = datetime.strptime(date_to_write, '%Y-%m-%d').strftime("%d-%m-%Y")
+        date_to_write = datetime.strptime(date_to_write, '%Y-%m-%d').strftime("%-d/%-m/%Y")
         ws.cell(last_row+1,1).value = date_to_write
 
         All_titles = list(dictionary.keys())
