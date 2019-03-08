@@ -29,8 +29,8 @@ def transpose(dataframe,condition): #FUNCTION THAT TRANSPOSES THE DATAFRMES COND
 def print_dataframes_education(regions,dataframe):
     border_msg('EDUCATIONAL STATS')
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-        regions_labels_list = list(regions.index) #LIST WITH THE REGIONS THAT EXIST IN FB PAGE
-        
+        regions_labels_list = list(regions['Regions']) #LIST WITH THE REGIONS THAT EXIST IN FB PAGE
+        #print(regions_labels_list)
         region_df = pd.DataFrame() #NEW DF TO STORE THE FORMATED DATA
         region_df['Total']=dataframe['Total']
         
@@ -61,7 +61,7 @@ def print_dataframes_education(regions,dataframe):
         #print(region_df)
         
         
-        for item in regions_labels_list:
+        for item in regions_labels_list: #item is a region of the region_list
             print("\n\n")
             print(50*"--")
             #PRINT REGION 
@@ -72,8 +72,9 @@ def print_dataframes_education(regions,dataframe):
             
             #ADD A LEADING WHITESPACE TO THE NAME INORDER TO BE MATCHED WITH THE INDEXES OF THE REGIONS DF
             #region = " "+item 
-            value = regions.loc[(item),:].item()
-
+            
+            value = regions.loc[regions['Regions']==item]['Fans'].item()
+            
             #PASS THE VALUES OF MALES AND FEMALES FOR HIGHER, MID, LOWER EDUCATION 
             higher_percent_male = region_df.loc[(item),['Higher Education Percentage[%]']].values[0]
             higher_percent_female = region_df.loc[(item),['Higher Education Percentage[%]']].values[1]
@@ -98,7 +99,7 @@ def print_dataframes_education(regions,dataframe):
                 b=(value*lower_percent_female/100).round(2), 
                 ))
         border_msg('END OF EDUCATIONAL STATS')
-
+        
 def print_dataframe_age_occupation(regions,dataframe):
     border_msg('AGE AND OCCUPATIONAL STATS')
     #LOAD AGE DATAFRAME 
@@ -150,7 +151,7 @@ def print_dataframe_family(regions,dataframe):
     border_msg('FAMILY STATUS STATS')
     
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-        intial_region_list = list(regions.index) #LIST WITH THE REGIONS THAT EXIST IN FB PAGE
+        intial_region_list = list(regions['Regions']) #LIST WITH THE REGIONS THAT EXIST IN FB PAGE
         regions_labels_list=striplist(intial_region_list) #LIST ITEMS WITHOUT LEADING SPACE E.X." NAME"
 
         regions_family_df = pd.DataFrame() #NEW DF TO STORE THE FORMATED DATA
@@ -174,7 +175,7 @@ def print_dataframe_family(regions,dataframe):
             print(regions_family_df.loc[(item),:])#PRINT THE DF WITH THE STATS OF ELSTAT
             print("\nFacebook Page Correlation:\n")
             #VALUE = NUMBER OF FANS OF EACH REGION
-            value = regions.loc[(item),:].item()
+            value = regions.loc[regions['Regions']==item]['Fans'].item()
             #PRINTING THE STATS OF THE FB PAGE (NUMBER OF FANS * PERCENTAGE OF ELSTAT)
             print("Fans of Both Genders Non Married in FB Page :\t{a}".format(a=(value*regions_family_df.loc[(item),['Both Genders Non Married %']].values[0]/100).round(0)))
             print("Fans of Both Genders Married in FB Page :\t{a}".format(a=(value*regions_family_df.loc[(item),['Both Genders Married %']].values[0]/100).round(0)))
@@ -199,6 +200,7 @@ def main():
     
     education = pd.read_excel('excels/elstat/formated epipedo ekpaideusis.xlsx')
     print_dataframes_education(regions,education)
+    
     
     occupation = pd.read_excel('excels/elstat/formated katastasi asxolias greece.xlsx')
     print_dataframe_age_occupation(regions,occupation)
