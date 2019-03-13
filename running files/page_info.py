@@ -8,6 +8,8 @@ from openpyxl import Workbook
 from openpyxl import load_workbook
 import pandas as pd
 
+date_format = "%-d/%-m/%y"
+
 if __name__ == '__main__':
     token = "EAANXc609TdkBAO3HmSoswBZCTIbmZBMOcdzvLa8c97fdDZBzCjZCL2vAhJYPhyKt5sURY5VlozyHOZABZB6lxrPU5Bb8jM0PLFHh0xCj376nqu6EQZA6PoGbnI1cKyGYiOtrNNyLUebm55GGjNGI5VL6Tj1R9IstsIUSQHBbW7WVP7ZBUbZAn4occ"
     
@@ -99,7 +101,7 @@ def create_page_info():
         #writting first line with date 
         worksheet.write(0, 0,'Date')
         date_to_write= date.split("T",1)[0] #old
-        date_to_write = datetime.strptime(date_to_write, '%Y-%m-%d').strftime("%-d/%-m/%Y")
+        date_to_write = datetime.strptime(date_to_write, '%Y-%m-%d').strftime(date_format)
         worksheet.write(1, 0,date_to_write)
         All_titles = list(dictionary.keys())
         row=0
@@ -118,7 +120,7 @@ def create_page_info():
         ws = wb2.active
         last_row = ws.max_row
         date_to_write= date.split("T",1)[0]
-        date_to_write = datetime.strptime(date_to_write, '%Y-%m-%d').strftime("%-d/%-m/%Y")
+        date_to_write = datetime.strptime(date_to_write, '%Y-%m-%d').strftime(date_format)
         ws.cell(last_row+1,1).value = date_to_write
 
         All_titles = list(dictionary.keys())
