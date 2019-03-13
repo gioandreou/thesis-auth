@@ -79,7 +79,7 @@ def create_page_post_info():
         #writting first line with date 
         worksheet.write(0, 0,'Date-1 week until')
         date_to_write= date.split("T",1)[0] #old
-        date_to_write = datetime.strptime(date_to_write, '%Y-%m-%d').strftime("%-d/%-m/%Y")
+        date_to_write = datetime.strptime(date_to_write, '%Y-%m-%d').strftime("%-m/%-d/%Y")
         worksheet.write(1, 0,date_to_write)
         All_titles = list(dictionary.keys())
         row=0
