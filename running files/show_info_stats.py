@@ -166,6 +166,7 @@ def main():
 
         dataframe_city_country(df_country,"Country")
         dataframe_city_country(df_city,"City")
+        #city works
         dataframe_city_country(df_locale,"Locale")
     
 main()
