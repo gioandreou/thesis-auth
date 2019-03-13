@@ -169,7 +169,7 @@ app.layout = html.Div(children=[
                 'plot_bgcolor': colors['background'],
                 'paper_bgcolor': colors['background'],
                 'font': graph_fonts,
-                'title': 'Informations about the Post of the Page'
+                'title': 'Informations about the Posts of the Page'
             }
         }
     ),
