@@ -4,6 +4,8 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State
 from datetime import datetime
 import pandas as pd
+import pycountry
+
 
 
 app = dash.Dash()
@@ -27,6 +29,17 @@ df_countries = pd.read_excel('excels/lite/lite-Country.xlsx')
 list_countries=list(df_countries.columns)
 list_countries=list_countries[1:]
 options_countries=[]
+
+#world map 
+df_countries = df_countries.drop('Date',1)
+df_country_last = pd.DataFrame()
+df_country_last['locations'] = df_countries.columns.values
+df_country_last['values'] = df_countries.iloc[-1].values
+for item in df_country_last['locations']:
+    country = pycountry.countries.get(alpha_2=item)
+    #df_country_last.loc[df_country_last['locations']==item]
+    df_country_last['locations'].loc[df_country_last['locations']==item] = country.alpha_3
+
 
 for city in list_cities:
     options_cities.append({'label':'{} '.format(city), 'value':city})
@@ -204,8 +217,8 @@ app.layout = html.Div(children=[
                 'font': graph_fonts,
                 'title': 'City Plot'
             }
-        }
-),html.Div([
+        }),
+    html.Div([
                 html.H3('Select Countries:', style=style_fonts),
                 dcc.Dropdown(
                 id='my_ticker_symbol_countries',
@@ -216,15 +229,15 @@ app.layout = html.Div(children=[
             )
                 ],          
                 style={'display':'inline-block', 'verticalAlign':'top', 'width':'30%'}),
-            html.Div([
-            html.Button(
+    html.Div([
+    html.Button(
                 id='submit-button-countries',
                 n_clicks=0,
                 children='Submit',
                 style={'fontSize':24, 'marginLeft':'30px'}
             ),
             ], style={'display':'inline-block'}),
-            dcc.Graph(
+    dcc.Graph(
             id='my_graph_countries',
             figure={
                 'data': [
@@ -237,7 +250,37 @@ app.layout = html.Div(children=[
             }
         }
 ),
-html.Div([
+    dcc.Graph(
+        id='world-map',
+        figure={
+            
+            'data': [
+                {"type":'choropleth',
+                "locations":df_country_last['locations'], 
+                "z":df_country_last['values'],
+                "reversescale": False, 
+                "marker": {"line": {
+                            "color": "rgb(180,180,180)",
+                            "width": 0.5
+                            }},
+      "colorbar": {
+        "title": "Fans Number"
+      },
+      "colorscale": 'Viridis'
+      },
+            ],
+            'layout': {
+                'width':2000,
+                'height':750,
+                'plot_bgcolor': colors['background'],
+                'paper_bgcolor': colors['background'],
+                'font': graph_fonts,
+                'title': 'World Map of Fans'
+            }
+        }
+    )
+,
+    html.Div([
                 html.H3('Select Posts:', style=style_fonts),
                 dcc.Dropdown(
                 id='my_ticker_symbol_posts',
