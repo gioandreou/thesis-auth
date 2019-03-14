@@ -170,7 +170,11 @@ def main():
         '''
         #ascii problem
         dataframe_city_country(df_city,"City")
+<<<<<<< HEAD
         '''
+=======
+        #city works
+>>>>>>> d0d5dc7d639636c3929f33ad6b97ebe793c219f8
         dataframe_city_country(df_locale,"Locale")
     
 main()
