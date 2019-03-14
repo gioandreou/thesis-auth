@@ -9,7 +9,7 @@ from openpyxl import load_workbook
 import pandas as pd
 
 
-date_format = "%-d/%-m/%y"
+date_format = "%d/%m/%Y"
 
 if __name__ == '__main__':
     token = "EAANXc609TdkBAO3HmSoswBZCTIbmZBMOcdzvLa8c97fdDZBzCjZCL2vAhJYPhyKt5sURY5VlozyHOZABZB6lxrPU5Bb8jM0PLFHh0xCj376nqu6EQZA6PoGbnI1cKyGYiOtrNNyLUebm55GGjNGI5VL6Tj1R9IstsIUSQHBbW7WVP7ZBUbZAn4occ"
