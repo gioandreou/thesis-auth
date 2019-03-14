@@ -110,7 +110,8 @@ def dataframe_city_country(dataframe,typedf):
         start = str(dataframe['Date'].iloc[0])
         end = str(dataframe['Date'].iloc[-1])
 
-        #print(dataframe)
+        #dataframe.encode('ascii', 'ignore')
+        #print(start)
 
         last_date_top = transpose(dataframe)
         last_date_top = last_date_top.nlargest(5,0)
@@ -121,13 +122,14 @@ def dataframe_city_country(dataframe,typedf):
         new_df['First Count'] = first_values
         new_df['Last Count'] = last_values
         new_df['Growth %'] = (((last_values-first_values)/last_values)*100).round(2)
+        #print(new_df)
         #last_date_top = end
 
 
         print_locale_city_country(new_df,typedf)
 
 def print_locale_city_country(dataframe,typedf):
-        with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+        with pd.option_context('display.encoding', 'UTF-8', 'display.max_rows', 100, 'display.max_columns', None):
                 print("\n\nThese are the {a} stats of the page  \n\n".format(a=typedf))
                 print(dataframe)
                 print(50*"--")
@@ -154,7 +156,7 @@ def main():
         df_post=df_dict['lite-Post-Info.xlsx']
         df_ages=df_dict['lite-Ages-Gender.xlsx']
         df_page_post_info= df_dict['lite-Page-Post.xlsx']
-
+        
         df_info,start_info,end_info =  dataframe_page_info(df_page_info)
         print_page_info(df_info,start_info,end_info)
 
@@ -163,9 +165,12 @@ def main():
 
         dataframe_post_info(df_post)
         dataframe_ages(df_ages)
-
+        
         dataframe_city_country(df_country,"Country")
+        '''
+        #ascii problem
         dataframe_city_country(df_city,"City")
+        '''
         dataframe_city_country(df_locale,"Locale")
     
 main()
