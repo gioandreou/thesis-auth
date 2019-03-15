@@ -38,11 +38,23 @@ def fetch_xlsx(dataframe):
         column_name=list(dataframe_last.columns.values)
         dataframe_last = dataframe_last.nlargest(6,column_name[0])    
         '''
+        '''
+        print(dataframe_mean)
+        dataframe_mean = pd.DataFrame(dataframe_mean, columns = [['Regions'],['Fans']])
+        print(dataframe_mean)
+        '''
+
         #WRITE THE DF TO XLSX IN ORDER TO BE PARSED BY OTHER FILES 
-        writer = ExcelWriter('excels/lite/RegionDF.xlsx')
+        name_xlsx = 'excels/lite/RegionDF.xlsx'
+        writer = ExcelWriter(name_xlsx)
         dataframe_mean.to_excel(writer,'Sheet1')
         writer.save()        
-
+        
+        wb2 = load_workbook(name_xlsx)
+        ws = wb2.active
+        ws.cell(row=1,column=1).value='Regions'
+        ws.cell(row=1,column=2).value='Fans'
+        wb2.save(name_xlsx)
 
 def main():
 
