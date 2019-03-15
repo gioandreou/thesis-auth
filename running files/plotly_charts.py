@@ -18,27 +18,34 @@ df_page_info = pd.read_excel('excels/lite/lite-Page-Info.xlsx')
 df_page_post = pd.read_excel('excels/lite/lite-Page-Post.xlsx')
 
 df_cities = pd.read_excel('excels/lite/lite-City.xlsx')
-#cities = cities.T
+
+df_countries = pd.read_excel('excels/lite/lite-Country.xlsx')
+
+df_posts = pd.read_excel('excels/lite/lite-Post-Info.xlsx')
+
 list_cities=list(df_cities.columns)
 list_cities=list_cities[1:]
 options_cities=[]
 
-df_countries = pd.read_excel('excels/lite/lite-Country.xlsx')
-#cities = cities.T
 list_countries=list(df_countries.columns)
 list_countries=list_countries[1:]
 options_countries=[]
+
+list_post_ids = list(df_posts['ID'])
+options_posts=[]
+for post_id in list_post_ids:
+    options_posts.append({'label':'{} '.format(df_posts.loc[df_posts['ID']==post_id]['Message'].item()), 'value':post_id})
 
 #world map 
 df_countries_map = df_countries.drop('Date',1)
 df_country_last = pd.DataFrame()
 df_country_last['locations'] = df_countries_map.columns.values
 df_country_last['values'] = df_countries_map.iloc[-1].values
+
 for item in df_country_last['locations']:
     country = pycountry.countries.get(alpha_2=item)
     #df_country_last.loc[df_country_last['locations']==item]
     df_country_last['locations'].loc[df_country_last['locations']==item] = country.alpha_3
-
 
 for city in list_cities:
     options_cities.append({'label':'{} '.format(city), 'value':city})
@@ -46,55 +53,39 @@ for city in list_cities:
 for country in list_countries:
     options_countries.append({'label':'{} '.format(country), 'value':country})
 
-df_posts = pd.read_excel('excels/lite/lite-Post-Info.xlsx')
-
-list_post_ids = list(df_posts['ID'])
-
-options_posts=[]
-
-for post_id in list_post_ids:
-    options_posts.append({'label':'{} '.format(df_posts.loc[df_posts['ID']==post_id]['Message'].item()), 'value':post_id})
-
 
 colors = {
     'background': '#ffffff',
-    'text': '#191919',
-}
+    'text': '#191919'}
+
 graph_fonts={
-                    'family':'sans-serif',
-                    'size':'18',
-                    'color':colors['text']
-                }
+    'family':'sans-serif',
+    'size':'18',
+    'color':colors['text']}
+
 style_fonts ={
-            'textAlign': 'center',
-            'color': colors['text'],
-            'fontFamily':'Helvetica',
-            'fontSize':'30px'
-        }
+    'textAlign': 'center',
+    'color': colors['text'],
+    'fontFamily':'Helvetica',
+    'fontSize':'30px'}
 style_whole_div ={
-            'textAlign': 'left',
-            'color': colors['text'],
-            'fontFamily':'Helvetica',
-            'fontSize':'25px',
-            'background-image': 'url(Images/what-the-hex.png)'
-        }
+    'textAlign': 'left',
+    'color': colors['text'],
+    'fontFamily':'Helvetica',
+    'fontSize':'25px',
+    'background-image': 'url(Images/what-the-hex.png)'}
 
 app.layout = html.Div(children=[
     html.H1(
         children='Dashboard of Andreou George Thesis',
-        style=style_fonts
-    ),
-
+        style=style_fonts),
     html.Div(
         children='The Informations and Stats about the Fans of our Page',
-        style=style_fonts
-    ),
+        style=style_fonts),
     #Age-Gender
     dcc.Graph(
         id='age-gender',
-        figure={
-            
-            'data': [
+        figure={'data': [
                 {'x': df_age_gender['Date'], 'y': df_age_gender['F.13-17'], 'type': 'lines', 'name': 'F.13-17'},
                 {'x': df_age_gender['Date'], 'y': df_age_gender['F.18-24'], 'type': 'lines', 'name': 'F.18-24'},
                 {'x': df_age_gender['Date'], 'y': df_age_gender['F.25-34'], 'type': 'lines', 'name': 'F.25-34'},
@@ -115,32 +106,22 @@ app.layout = html.Div(children=[
                 'plot_bgcolor': colors['background'],
                 'paper_bgcolor': colors['background'],
                 'font': graph_fonts,
-                'title': 'Age and Gender of FB PAGE'
-            }
-        }
-    ),
+                'title': 'Age and Gender of FB PAGE'}}),
     #Regions
     dcc.Graph(
         id='regions',
-        figure={
-            
-            'data': [
+        figure={'data': [
                 {'x': df_regions['Regions'], 'y': df_regions['Fans'], 'type': 'bar', 'name': 'Regions'},
             ],
             'layout': {
                 'plot_bgcolor': colors['background'],
                 'paper_bgcolor': colors['background'],
                 'font': graph_fonts,
-                'title': 'Regions of Fans '
-            }
-        }
-    ),
+                'title': 'Regions of Fans '}}),
     #Page Info
     dcc.Graph(
         id='page-info',
-        figure={
-            
-            'data': [
+        figure={'data': [
                 {'x': df_page_info['Date'], 'y': df_page_info['Page View Totals'], 'type': 'lines', 'name': 'Page View Total'},
                 {'x': df_page_info['Date'], 'y': df_page_info['Page Fans'], 'type': 'lines', 'name': 'Page Fans'},
                 {'x': df_page_info['Date'], 'y': df_page_info['Page Fan Adds Paid'], 'type': 'lines', 'name': 'Page Fan Adds Paid'},
@@ -151,87 +132,71 @@ app.layout = html.Div(children=[
             ],
             'layout': {
                 'legend':{
-                    'size':'15px','color':'#000'
-                },
+                    'size':'15px','color':'#000'},
                 'plot_bgcolor': colors['background'],
                 'paper_bgcolor': colors['background'],
                 'font': graph_fonts,
-                'title': 'Informations about the Page'
-            }
-        }
-    ),
+                'title': 'Informations about the Page'}}),
     #Post Info
     dcc.Graph(
         id='page-post',
-        figure={
-            
-            'data': [
+        figure={'data': [
                 {'x': df_page_post['Date'], 'y': df_page_post['Page Post Impressions'], 'type': 'lines', 'name': 'Page Post Impressions'},
                 {'x': df_page_post['Date'], 'y': df_page_post['Page Post Engagements'], 'type': 'lines', 'name': 'Page Post Engagements'},
                 {'x': df_page_post['Date'], 'y': df_page_post['Page Consumptios'], 'type': 'lines', 'name': 'Page Consumptios'},
                 {'x': df_page_post['Date'], 'y': df_page_post['Page Post Impressions Paid'], 'type': 'lines', 'name': 'Page Post Impressions Paid'},
                 {'x': df_page_post['Date'], 'y': df_page_post['Page Post Impressions Organic'], 'type': 'lines', 'name': 'Page Post Impressions Organic'},
-                {'x': df_page_post['Date'], 'y': df_page_post['Page Post Impressions Viral'], 'type': 'lines', 'name': 'Page Post Impressions Viral'}
-                
+                {'x': df_page_post['Date'], 'y': df_page_post['Page Post Impressions Viral'], 'type': 'lines', 'name': 'Page Post Impressions Viral'}    
             ],
             'layout': {
                 'legend':{
-                    'size':'15px','color':'#000'
-                },
+                    'size':'15px','color':'#000'},
                 'plot_bgcolor': colors['background'],
                 'paper_bgcolor': colors['background'],
                 'font': graph_fonts,
-                'title': 'Informations about the Posts of the Page'
-            }
-        }
-    ),
+                'title': 'Informations about the Posts of the Page'}}),
+    
+    #cities
     html.Div([
-                html.H3('Select Cities:', style=style_fonts),
-                dcc.Dropdown(
-                id='my_ticker_symbol_cities',
-                options=options_cities,
-                value=['City'],
-                multi=True,
-                style={'fontSize':16}
-            )
-                ],          
-                style={'display':'inline-block', 'verticalAlign':'top', 'width':'30%'}),
-            
+        html.H3('Select Cities:', style=style_fonts),
+        dcc.Dropdown(
+        id='my_ticker_symbol_cities',
+        options=options_cities,
+        value=['City'],
+        multi=True,
+        style={'fontSize':16})],          
+            style={'display':'inline-block', 'verticalAlign':'top', 'width':'30%'}),         
     html.Div([
-    html.Button(
-                id='submit-button-cities',
-                n_clicks=0,
-                children='Submit',
-                style={'fontSize':24, 'marginLeft':'30px'}
-            ),
-            ], style={'display':'inline-block'}),
+        html.Button(
+            id='submit-button-cities',
+            n_clicks=0,
+            children='Submit',
+            style={'fontSize':24, 'marginLeft':'30px'}),
+            ], 
+            style={'display':'inline-block'}),
     dcc.Graph(
             id='my_graph_cities',
-            figure={
-                'data': [
+            figure={'data': [
                     {'x': [1,2], 'y': [3,1]}
             ],'layout': {
                 'plot_bgcolor': colors['background'],
                 'paper_bgcolor': colors['background'],
                 'font': graph_fonts,
-                'title': 'City Plot'
-            }
-        }),
-    #Country  
+                'title': 'City Plot'}}),
+    
+    #Countr  
     html.Div([
-                html.H3('Select Countries:', style=style_fonts),
-                dcc.Dropdown(
-                id='my_ticker_symbol_countries',
-                options=options_countries,
-                value=['Country'],
-                multi=True,
-                style={'fontSize':16}
-            )
-                ],          
-                style={'display':'inline-block', 'verticalAlign':'top', 'width':'30%'}),
-            
+        html.H3('Select Countries:', style=style_fonts),
+        dcc.Dropdown(
+            id='my_ticker_symbol_countries',
+            options=options_countries,
+            value=['Country'],
+            multi=True,
+            style={'fontSize':16})
+            ],          
+            style={'display':'inline-block', 'verticalAlign':'top', 'width':'30%'}),
     html.Div([
-    html.Button(
+        html.Button(
                 id='submit-button-countries',
                 n_clicks=0,
                 children='Submit',
@@ -244,79 +209,67 @@ app.layout = html.Div(children=[
                 'data': [
                     {'x': [1,2], 'y': [3,1]}
             ],'layout': {
-                'plot_bgcolor': colors['background'],
-                'paper_bgcolor': colors['background'],
-                'font': graph_fonts,
-                'title': 'Country Plot'
-            }
-        }),
+                    'plot_bgcolor': colors['background'],
+                    'paper_bgcolor': colors['background'],
+                    'font': graph_fonts,
+                    'title': 'Country Plot'}}),
+    
+    #world map
     dcc.Graph(
         id='world-map',
-        figure={
-            
-            'data': [
+        figure={'data': [
                 {"type":'choropleth',
                 "locations":df_country_last['locations'], 
                 "z":df_country_last['values'],
                 "reversescale": False, 
-                "marker": {"line": {
-                            "color": "rgb(180,180,180)",
-                            "width": 0.5
-                            }},
-      "colorbar": {
-        "title": "Fans Number"
-      },
-      "colorscale": 'Viridis'
-      },
-            ],
-            'layout': {
-                'width':1500,
-                'height':500,
-                'plot_bgcolor': colors['background'],
-                'paper_bgcolor': colors['background'],
-                'font': graph_fonts,
-                'title': 'World Map of Fans'
-            }
-        }
-    ),
+                "marker": {
+                    "line": {
+                        "color": "rgb(180,180,180)",
+                        "width": 0.5}},
+                "colorbar": {
+                    "title": "Fans Number"},
+                "colorscale": 'Viridis'},
+                ],'layout': {
+                    'width':1500,
+                    'height':500,
+                    'plot_bgcolor': colors['background'],
+                    'paper_bgcolor': colors['background'],
+                    'font': graph_fonts,
+                    'title': 'World Map of Fans'}}),
+    
+    #posts infos 
     html.Div([
-                html.H3('Select Posts:', style=style_fonts),
-                dcc.Dropdown(
-                id='my_ticker_symbol_posts',
-                options=options_posts,
-                value=['Post'],
-                multi=False,
-                style={'fontSize':16}
-                
-            )
-                ],          
-                style={'display':'inline-block', 'verticalAlign':'top', 'width':'30%'}),
-                html.Div([
-                html.Button(
-                id='submit-button-posts',
-                n_clicks=0,
-                children='Submit',
-                style={'fontSize':24, 'marginLeft':'30px'}
-            ),
+        html.H3('Select Posts:', style=style_fonts),
+        dcc.Dropdown(
+            id='my_ticker_symbol_posts',
+            options=options_posts,
+            value=['Post'],
+            multi=False,
+            style={'fontSize':16})
+            ],style={'display':'inline-block', 'verticalAlign':'top', 'width':'30%'}),
+    html.Div([
+        html.Button(
+            id='submit-button-posts',
+            n_clicks=0,
+            children='Submit',
+            style={'fontSize':24, 'marginLeft':'30px'}),
             ], style={'display':'inline-block'}),
-            dcc.Graph(
-            id='my_graph_posts',
-            figure={
-                'data': [
-                    {'x':['Impressions'], 'y': df_posts.loc[df_posts['ID']=='974146599436745_974147879436617']['Impressions'],'type':'bar','name': '%'},
-                    {'x':['Impressions Paid'], 'y': df_posts.loc[df_posts['ID']=='974146599436745_974147879436617']['Impressions Paid'],'type':'bar','name': '%'},
-                    {'x':['Impressions Organic'], 'y': df_posts.loc[df_posts['ID']=='974146599436745_974147879436617']['Impressions Organic'],'type':'bar','name': '%'},
-                    {'x':['Impressions Fans'], 'y': df_posts.loc[df_posts['ID']=='974146599436745_974147879436617']['Impressions Fans'],'type': 'bar','name': '%'},
-                    {'x':['Impressions Fans Paid'], 'y': df_posts.loc[df_posts['ID']=='974146599436745_974147879436617']['Impressions Fans Paid'],'type': 'bar','name': '%'},
-                    {'x':['Enganged Users'], 'y': df_posts.loc[df_posts['ID']=='974146599436745_974147879436617']['Enganged Users'],'type': 'bar','name': '%'},
-                    {'x':['Impressions Viral'], 'y': df_posts.loc[df_posts['ID']=='974146599436745_974147879436617']['Impressions Viral'],'type': 'bar','name': '%'},
-                    {'x':['Total Reactions'], 'y': df_posts.loc[df_posts['ID']=='974146599436745_974147879436617']['Total Reactions'],'type': 'bar','name': '%'}
-            ]
-        })
+    dcc.Graph(
+        id='my_graph_posts',
+        figure={'data': [
+                {'x':['Impressions'], 'y': df_posts.loc[df_posts['ID']=='974146599436745_974147879436617']['Impressions'],'type':'bar','name': '%'},
+                {'x':['Impressions Paid'], 'y': df_posts.loc[df_posts['ID']=='974146599436745_974147879436617']['Impressions Paid'],'type':'bar','name': '%'},
+                {'x':['Impressions Organic'], 'y': df_posts.loc[df_posts['ID']=='974146599436745_974147879436617']['Impressions Organic'],'type':'bar','name': '%'},
+                {'x':['Impressions Fans'], 'y': df_posts.loc[df_posts['ID']=='974146599436745_974147879436617']['Impressions Fans'],'type': 'bar','name': '%'},
+                {'x':['Impressions Fans Paid'], 'y': df_posts.loc[df_posts['ID']=='974146599436745_974147879436617']['Impressions Fans Paid'],'type': 'bar','name': '%'},
+                {'x':['Enganged Users'], 'y': df_posts.loc[df_posts['ID']=='974146599436745_974147879436617']['Enganged Users'],'type': 'bar','name': '%'},
+                {'x':['Impressions Viral'], 'y': df_posts.loc[df_posts['ID']=='974146599436745_974147879436617']['Impressions Viral'],'type': 'bar','name': '%'},
+                {'x':['Total Reactions'], 'y': df_posts.loc[df_posts['ID']=='974146599436745_974147879436617']['Total Reactions'],'type': 'bar','name': '%'}
+        ]})
 
-    ],
-    style=style_whole_div
-)
+],style=style_whole_div)
+
+
 @app.callback(
     Output('my_graph_cities', 'figure'),
     [Input('submit-button-cities', 'n_clicks')],
