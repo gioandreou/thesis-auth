@@ -77,16 +77,23 @@ def get_post_info():
             dict_of_posts.update(temp_dict)
         
     post_info_path_direc="excels/lite/"+"lite-Post-Info.xlsx"
-    #print (json.dumps(dict_of_posts, indent=4))
-    #no need to update 
+    post_continously_path_direc="excels/lite/"+"lite-Post-Info-Countinuously.xlsx"
+    
+    #no need to update for post info file,because it stores always the latest values 
     #write from scratch each time to refresh also the data of old posts.
     write_post_info_in_xlsx(dict_of_posts,post_info_path_direc)
-    '''
-    if os.path.isfile(post_info_path_direc):
-        update_post_info_in_xlsx(dict_of_posts,post_info_path_direc)
+    
+    #check for the post_continuously file if exists or not 
+    if os.path.isfile(post_continously_path_direc):
+        #write the latest values for the posts, values-infos are fetched today and the last rows have 
+        #the same infos as the post_info file
+        update_continously_post_info_in_xlsx(dict_of_posts,post_continously_path_direc)
+        
+        #check the impressions route (stable or increase-decrease)
+        update_continously_status_in_xlsx(dict_of_posts,post_continously_path_direc)
     else:
-        write_post_info_in_xlsx(dict_of_posts,post_info_path_direc)    
-    '''    
+        write_continously_post_info_in_xlsx(dict_of_posts,post_continously_path_direc)    
+     
 
 def write_post_info_in_xlsx(dictionary,name_xlsx):
     workbook = xlsxwriter.Workbook(name_xlsx)
@@ -114,6 +121,89 @@ def write_post_info_in_xlsx(dictionary,name_xlsx):
     
     workbook.close()
     print(name_xlsx + " is created!")       
+
+def update_continously_post_info_in_xlsx(dictionary,name_xlsx):
+    wb2 = load_workbook(name_xlsx)
+    ws = wb2.active
+    last_row = ws.max_row
+    
+    All_ids = list(dictionary.keys())
+    col=2
+    row=last_row+1
+
+    todays_date = datetime.today().strftime("%d/%m/%Y")
+    
+    for i in range(len(All_ids)): #every id-post 
+        ws.cell(row=row+i,column=1).value=todays_date #write date of fetching 
+        ws.cell(row=row+i,column=2).value=All_ids[i] #write id in xlsx 1st col each row
+        
+        for j in range(1,len(dictionary[All_ids[i]])+1): #all the infos of every post-id
+            ws.cell(row=row+i,column=col+j).value=dictionary[All_ids[i]][j-1] #write every value from the list of values inside the dictionary
+    wb2.save(name_xlsx)
+    print(name_xlsx + " is updated!")
+
+def update_continously_status_in_xlsx(dictionary,name_xlsx):
+    workbook = load_workbook(name_xlsx)
+    worksheet = workbook.active
+
+    max_row = worksheet.max_row
+
+    all_ids_of_posts = list(dictionary.keys()) #all ids of posts that have been posted since latest fetch
+    dict_id_position = {} # dictionary with key = id and value = [positions(rows) that this id is appeared in xlsx]
+
+    for item_id in all_ids_of_posts: #iterate through all id items 
+        id_positions=[]
+        for row in range(2,max_row+1): # for every item, check every row if this id is appeared
+            if item_id == worksheet.cell(row=row,column=2).value: # if yes append the row value at the list
+                id_positions.append(row)
+        
+        dict_id_position.update({item_id:id_positions})
+
+    #print(dict_id_position)
+
+    for key,value in dict_id_position.items():
+        for position in range(len(value)-1) :
+            if (worksheet.cell(row=value[position],column=5).value<worksheet.cell(row=value[position+1],column=5).value):
+                worksheet.cell(row=value[position+1],column=13).value='ALIVE'
+            else :
+                worksheet.cell(row=value[position+1],column=13).value='DEAD'
+    workbook.save(name_xlsx)      
+
+def write_continously_post_info_in_xlsx(dictionary,name_xlsx):
+    workbook = xlsxwriter.Workbook(name_xlsx)
+    worksheet = workbook.add_worksheet()
+    #writting first line with ID, date and Title of values 
+    worksheet.write(0, 0,'Date Fetched')
+    worksheet.write(0, 1,'ID')
+    worksheet.write(0, 2,'Date Created')
+    worksheet.write(0, 3,'Message')
+    worksheet.write(0, 4,'Impressions')
+    worksheet.write(0, 5,'Impressions Paid')
+    worksheet.write(0, 6,'Impressions Organic')
+    worksheet.write(0, 7,'Impressions Fans')
+    worksheet.write(0, 8,'Impressions Fans Paid')
+    worksheet.write(0, 9,'Enganged Users')
+    worksheet.write(0, 10,'Impressions Viral')
+    worksheet.write(0, 11,'Total Reactions')
+    worksheet.write(0, 12,'STATUS')
+
+    All_ids = list(dictionary.keys())
+    col=1
+    row=1
+
+    todays_date = datetime.today().strftime("%d/%m/%Y")
+    
+    for i in range(len(All_ids)): #every id-post 
+        worksheet.write(row+i,0,todays_date) #write date of fetching 
+        worksheet.write(row+i,1,All_ids[i]) #write id in xlsx 1st col each row
+        
+        for j in range(1,len(dictionary[All_ids[i]])+1): #all the infos of every post-id
+            worksheet.write(row+i,col+j,dictionary[All_ids[i]][j-1]) #write every value from the list of values inside the dictionary
+        worksheet.write(row+i,len(dictionary[All_ids[i]])+2,'START')
+    workbook.close()
+    print(name_xlsx + " is created!")
+
+
 '''
 def update_post_info_in_xlsx(dictionary,name_xlsx):
     wb2 = load_workbook(name_xlsx)
