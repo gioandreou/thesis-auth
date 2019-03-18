@@ -12,6 +12,21 @@ app = dash.Dash()
 
 df_cont = pd.read_excel('excels/lite/lite-Post-Info-Countinuously.xlsx')
 
+df_ag = pd.read_excel('excels/lite/lite-Ages-Gender.xlsx')
+
+date1 = (df_cont[(df_cont['ID']=='974146599436745_974147879436617') & (df_cont['STATUS']=='START')]['Date Fetched'].values[0]).date()
+date2 = (df_cont[(df_cont['ID']=='974146599436745_974147879436617') & (df_cont['STATUS']=='DEAD')]['Date Fetched'].values[0]).date()
+
+
+df_test_age_gender = df_ag.loc[(df_ag['Date']>=date1) & (df_ag['Date']<=date2),:]
+df_test_diff = df_test_age_gender.diff()
+
+'''
+with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+    print(date1)
+    print(date2)
+    print(df_test)
+'''
 list_post_ids = list(df_cont['ID'])
 list_post_ids = list(set(list_post_ids))
 options_posts_cont=[]
@@ -31,6 +46,7 @@ print(str(df_cont[(df_cont['ID']=='974146599436745_974147879436617') & (df_cont[
 print(str(df_cont[(df_cont['ID']=='974146599436745_974147879436617') & (df_cont['STATUS']=='DEAD')]['Date Fetched'].values[0]))
 
 '''
+
 colors = {
     'background': '#ffffff',
     'text': '#191919'}
@@ -95,11 +111,97 @@ app.layout = html.Div(children=[
             +' until: '
             +str(df_cont[(df_cont['ID']=='974146599436745_974147879436617') & (df_cont['STATUS']=='DEAD')]['Date Fetched'].values[0])
         ],
-        style=style_fonts)
+        style=style_fonts),
+    
+    dcc.Graph(
+        id='linegraph_posts_cont_age_gender',
+        figure={'data': [
+                {'x': df_test_age_gender['Date'], 'y': df_test_age_gender['F.13-17'], 'type': 'lines', 'name': 'F.13-17'},
+                
+                {'x': df_test_age_gender['Date'], 'y': df_test_age_gender['F.18-24'], 'type': 'lines', 'name': 'F.18-24'},
+                
+                {'x': df_test_age_gender['Date'], 'y': df_test_age_gender['F.25-34'], 'type': 'lines', 'name': 'F.25-34'},
+                
+                {'x': df_test_age_gender['Date'], 'y': df_test_age_gender['F.35-44'], 'type': 'lines', 'name': 'F.35-44'},
+                
+                {'x': df_test_age_gender['Date'], 'y': df_test_age_gender['F.45-54'], 'type': 'lines', 'name': 'F.45-54'},
+                
+                {'x': df_test_age_gender['Date'], 'y': df_test_age_gender['F.55-64'], 'type': 'lines', 'name': 'F.55-64'},
+                
+                {'x': df_test_age_gender['Date'], 'y': df_test_age_gender['F.65+'],   'type': 'lines', 'name': 'F.65+'},
+
+                {'x': df_test_age_gender['Date'], 'y': df_test_age_gender['M.13-17'], 'type': 'lines', 'name': 'M.13-17'},
+                
+                {'x': df_test_age_gender['Date'], 'y': df_test_age_gender['M.18-24'], 'type': 'lines', 'name': 'M.18-24'},
+                
+                {'x': df_test_age_gender['Date'], 'y': df_test_age_gender['M.25-34'], 'type': 'lines', 'name': 'M.25-24'},
+                
+                {'x': df_test_age_gender['Date'], 'y': df_test_age_gender['M.35-44'], 'type': 'lines', 'name': 'M.35-44'},
+                
+                {'x': df_test_age_gender['Date'], 'y': df_test_age_gender['M.45-54'], 'type': 'lines', 'name': 'M.45-54'},
+                
+                {'x': df_test_age_gender['Date'], 'y': df_test_age_gender['M.55-64'], 'type': 'lines', 'name': 'M.55-64'},
+                
+                {'x': df_test_age_gender['Date'], 'y': df_test_age_gender['M.65+'],   'type': 'lines', 'name': 'M.65+'}
+            ],
+            'layout': {
+                'plot_bgcolor': colors['background'],
+                'paper_bgcolor': colors['background'],
+                'font': graph_fonts,
+                'title': 'Lines of each age-gender group at specific post dates'}}),
+
+
     
 
-
 ])
+@app.callback(
+    Output('linegraph_posts_cont_age_gender', 'figure'),
+    [Input('submit-button-posts-cont', 'n_clicks')],
+    [State('my_ticker_symbol_post_cont', 'value')])
+def update_age_gender_period(n_clicks, posts_ticker_cont):
+    date1 = (df_cont[(df_cont['ID']==posts_ticker_cont) & (df_cont['STATUS']=='START')]['Date Fetched'].values[0]).date()
+    date2 = (df_cont[(df_cont['ID']==posts_ticker_cont) & (df_cont['STATUS']=='DEAD')]['Date Fetched'].values[0]).date()
+
+    df_age_gender_func = df_ag.loc[(df_ag['Date']>=date1) & (df_ag['Date']<=date2),:]
+
+    traces_age_gender=([
+                {'x': df_age_gender_func['Date'], 'y': df_age_gender_func['F.13-17'], 'type': 'lines', 'name': 'F.13-17'},
+                
+                {'x': df_age_gender_func['Date'], 'y': df_age_gender_func['F.18-24'], 'type': 'lines', 'name': 'F.18-24'},
+                
+                {'x': df_age_gender_func['Date'], 'y': df_age_gender_func['F.25-34'], 'type': 'lines', 'name': 'F.25-34'},
+                
+                {'x': df_age_gender_func['Date'], 'y': df_age_gender_func['F.35-44'], 'type': 'lines', 'name': 'F.35-44'},
+                
+                {'x': df_age_gender_func['Date'], 'y': df_age_gender_func['F.45-54'], 'type': 'lines', 'name': 'F.45-54'},
+                
+                {'x': df_age_gender_func['Date'], 'y': df_age_gender_func['F.55-64'], 'type': 'lines', 'name': 'F.55-64'},
+                
+                {'x': df_age_gender_func['Date'], 'y': df_age_gender_func['F.65+'],   'type': 'lines', 'name': 'F.65+'},
+
+                {'x': df_age_gender_func['Date'], 'y': df_age_gender_func['M.13-17'], 'type': 'lines', 'name': 'M.13-17'},
+                
+                {'x': df_age_gender_func['Date'], 'y': df_age_gender_func['M.18-24'], 'type': 'lines', 'name': 'M.18-24'},
+                
+                {'x': df_age_gender_func['Date'], 'y': df_age_gender_func['M.25-34'], 'type': 'lines', 'name': 'M.25-24'},
+                
+                {'x': df_age_gender_func['Date'], 'y': df_age_gender_func['M.35-44'], 'type': 'lines', 'name': 'M.35-44'},
+                
+                {'x': df_age_gender_func['Date'], 'y': df_age_gender_func['M.45-54'], 'type': 'lines', 'name': 'M.45-54'},
+                
+                {'x': df_age_gender_func['Date'], 'y': df_age_gender_func['M.55-64'], 'type': 'lines', 'name': 'M.55-64'},
+                
+                {'x': df_age_gender_func['Date'], 'y': df_age_gender_func['M.65+'],   'type': 'lines', 'name': 'M.65+'}
+
+    ])
+    figure_age_gender = {
+        
+    'data': traces_age_gender,
+    #'layout': {'title':'Message: '+df_cont[df_cont['ID']==posts_ticker_cont]['Message'].values[0]}
+    }
+    return figure_age_gender
+
+
 
 
 @app.callback(
