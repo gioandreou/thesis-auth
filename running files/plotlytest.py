@@ -12,21 +12,20 @@ app = dash.Dash()
 
 df_cont = pd.read_excel('excels/lite/lite-Post-Info-Countinuously.xlsx')
 
+df_page_fans = pd.read_excel('excels/lite/lite-Page-Info.xlsx')
+df_page_fans = df_page_fans[['Date','Page Fans']]
+
+
 df_ag = pd.read_excel('excels/lite/lite-Ages-Gender.xlsx')
 
 date1 = (df_cont[(df_cont['ID']=='974146599436745_974147879436617') & (df_cont['STATUS']=='START')]['Date Fetched'].values[0])
 date2 = (df_cont[(df_cont['ID']=='974146599436745_974147879436617') & (df_cont['STATUS']=='DEAD')]['Date Fetched'].values[0])
 
+df_page_fans_short = df_page_fans.loc[(df_page_fans['Date']>=date1),:]
 
 df_test_age_gender = df_ag.loc[(df_ag['Date']>=date1) & (df_ag['Date']<=date2),:]
 df_test_diff = df_test_age_gender.diff()
 
-'''
-with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-    print(date1)
-    print(date2)
-    print(df_test)
-'''
 list_post_ids = list(df_cont['ID'])
 list_post_ids = list(set(list_post_ids))
 options_posts_cont=[]
@@ -35,17 +34,6 @@ for post_id in list_post_ids:
     templist = list(set(df_cont[df_cont['ID']==post_id]['Message']))
     options_posts_cont.append({'label':'{} '.format( templist[0] ), 'value':post_id})
 
-'''
-print(list_post_ids)
-print("---")
-print(options_posts_cont)
-
-print(df_cont[df_cont['ID']=='974146599436745_974147879436617']['Message'].values[0])
-
-print(str(df_cont[(df_cont['ID']=='974146599436745_974147879436617') & (df_cont['STATUS']=='START')]['Date Fetched'].values[0]))
-print(str(df_cont[(df_cont['ID']=='974146599436745_974147879436617') & (df_cont['STATUS']=='DEAD')]['Date Fetched'].values[0]))
-
-'''
 
 colors = {
     'background': '#ffffff',
@@ -96,7 +84,8 @@ app.layout = html.Div(children=[
                 {'x': df_cont[df_cont['ID']=='974146599436745_974147879436617']['Date Fetched'], 'y': df_cont[df_cont['ID']=='974146599436745_974147879436617']['Impressions Fans Paid'], 'type': 'lines', 'name': 'Impressions Fans Paid'},
                 {'x': df_cont[df_cont['ID']=='974146599436745_974147879436617']['Date Fetched'], 'y': df_cont[df_cont['ID']=='974146599436745_974147879436617']['Enganged Users'], 'type': 'lines', 'name': 'Enganged Users'},
                 {'x': df_cont[df_cont['ID']=='974146599436745_974147879436617']['Date Fetched'], 'y': df_cont[df_cont['ID']=='974146599436745_974147879436617']['Impressions Viral'], 'type': 'lines', 'name': 'Impressions Viral'},
-                {'x': df_cont[df_cont['ID']=='974146599436745_974147879436617']['Date Fetched'], 'y': df_cont[df_cont['ID']=='974146599436745_974147879436617']['Total Reactions'],   'type': 'lines', 'name': 'Total Reactions'}
+                {'x': df_cont[df_cont['ID']=='974146599436745_974147879436617']['Date Fetched'], 'y': df_cont[df_cont['ID']=='974146599436745_974147879436617']['Total Reactions'],   'type': 'lines', 'name': 'Total Reactions'},
+                {'x': df_page_fans_short['Date'], 'y': df_page_fans_short['Page Fans'],   'type': 'lines', 'name': 'Page Fans'}
             ],
             'layout': {
                 'plot_bgcolor': colors['background'],
@@ -212,6 +201,9 @@ def update_graph_posts_cont(n_clicks, posts_ticker_cont):
     traces_posts_cont = []
     #for tic in posts_ticker_cont:
     
+    date_from = (df_cont[(df_cont['ID']==posts_ticker_cont) & (df_cont['STATUS']=='START')]['Date Fetched'].values[0])
+    df_page_fans_short = df_page_fans.loc[(df_page_fans['Date']>=date_from),:]
+
     traces_posts_cont=([
                     {'x': df_cont[df_cont['ID']==posts_ticker_cont]['Date Fetched'], 'y': df_cont[df_cont['ID']==posts_ticker_cont]['Impressions'], 'text':df_cont[df_cont['ID']==posts_ticker_cont]['STATUS'], 'type': 'lines', 'name': 'Impressions'},
                     
@@ -227,7 +219,9 @@ def update_graph_posts_cont(n_clicks, posts_ticker_cont):
                     
                     {'x': df_cont[df_cont['ID']==posts_ticker_cont]['Date Fetched'], 'y': df_cont[df_cont['ID']==posts_ticker_cont]['Impressions Viral'], 'type': 'lines', 'name': 'Impressions Viral'},
                     
-                    {'x': df_cont[df_cont['ID']==posts_ticker_cont]['Date Fetched'], 'y': df_cont[df_cont['ID']==posts_ticker_cont]['Total Reactions'],   'type': 'lines', 'name': 'Total Reactions'}
+                    {'x': df_cont[df_cont['ID']==posts_ticker_cont]['Date Fetched'], 'y': df_cont[df_cont['ID']==posts_ticker_cont]['Total Reactions'],   'type': 'lines', 'name': 'Total Reactions'},
+
+                    {'x': df_page_fans_short['Date'], 'y': df_page_fans_short['Page Fans'],   'type': 'lines', 'name': 'Page Fans'}
 
             ])
     
