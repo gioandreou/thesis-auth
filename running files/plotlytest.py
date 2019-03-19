@@ -2,7 +2,7 @@ import dash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
-
+from datetime import datetime
 import pycountry
 import pandas as pd
 
@@ -14,8 +14,8 @@ df_cont = pd.read_excel('excels/lite/lite-Post-Info-Countinuously.xlsx')
 
 df_ag = pd.read_excel('excels/lite/lite-Ages-Gender.xlsx')
 
-date1 = (df_cont[(df_cont['ID']=='974146599436745_974147879436617') & (df_cont['STATUS']=='START')]['Date Fetched'].values[0]).date()
-date2 = (df_cont[(df_cont['ID']=='974146599436745_974147879436617') & (df_cont['STATUS']=='DEAD')]['Date Fetched'].values[0]).date()
+date1 = (df_cont[(df_cont['ID']=='974146599436745_974147879436617') & (df_cont['STATUS']=='START')]['Date Fetched'].values[0])
+date2 = (df_cont[(df_cont['ID']=='974146599436745_974147879436617') & (df_cont['STATUS']=='DEAD')]['Date Fetched'].values[0])
 
 
 df_test_age_gender = df_ag.loc[(df_ag['Date']>=date1) & (df_ag['Date']<=date2),:]
@@ -153,14 +153,14 @@ app.layout = html.Div(children=[
 
     
 
-])
+],style={'border':'1px solid', 'border-radius': 10})
 @app.callback(
     Output('linegraph_posts_cont_age_gender', 'figure'),
     [Input('submit-button-posts-cont', 'n_clicks')],
     [State('my_ticker_symbol_post_cont', 'value')])
 def update_age_gender_period(n_clicks, posts_ticker_cont):
-    date1 = (df_cont[(df_cont['ID']==posts_ticker_cont) & (df_cont['STATUS']=='START')]['Date Fetched'].values[0]).date()
-    date2 = (df_cont[(df_cont['ID']==posts_ticker_cont) & (df_cont['STATUS']=='DEAD')]['Date Fetched'].values[0]).date()
+    date1 = (df_cont[(df_cont['ID']==posts_ticker_cont) & (df_cont['STATUS']=='START')]['Date Fetched'].values[0])
+    date2 = (df_cont[(df_cont['ID']==posts_ticker_cont) & (df_cont['STATUS']=='DEAD')]['Date Fetched'].values[0])
 
     df_age_gender_func = df_ag.loc[(df_ag['Date']>=date1) & (df_ag['Date']<=date2),:]
 
@@ -243,11 +243,11 @@ def update_graph_posts_cont(n_clicks, posts_ticker_cont):
     [Input('submit-button-posts-cont', 'n_clicks')],
     [State('my_ticker_symbol_post_cont', 'value')])
 def update_date_alive(n_clicks, posts_ticker_cont):
-    child = ['Post is alive from: '
-            +str(df_cont[(df_cont['ID']==posts_ticker_cont) & (df_cont['STATUS']=='START')]['Date Fetched'].values[0])
-            +' until: '
-            +str(df_cont[(df_cont['ID']==posts_ticker_cont) & (df_cont['STATUS']=='DEAD')]['Date Fetched'].values[0])
-        ]
+    
+    dateFrom = str(df_cont[(df_cont['ID']==posts_ticker_cont) & (df_cont['STATUS']=='START')]['Date Fetched'].values[0])
+    dateUntil = str(df_cont[(df_cont['ID']==posts_ticker_cont) & (df_cont['STATUS']=='DEAD')]['Date Fetched'].values[0])
+    
+    child = ['Post is alive from: '+dateFrom+' until: '+dateUntil]
     return child
 
 
