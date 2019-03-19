@@ -34,7 +34,7 @@ if __name__ == '__main__':
     page_views_total= graph.get_object(id='974146599436745', fields='insights.metric(page_views_total).period(week)')
 
     #The number of users who like the Page
-    fan_count = graph.get_object(id='974146599436745', fields='fan_count')
+    fan_count = graph.get_object(id='974146599436745', fields='insights.metric(page_fans)')
 
 
 def put_zeros_in_empty_cells(file_name):
@@ -68,7 +68,7 @@ def create_page_info():
             dictionary_title_values.update({"Page View Totals":page_views_total_value})
 
 
-            fan_count_value = fan_count["fan_count"]
+            fan_count_value = fan_count["insights"]["data"][0]['values'][1]['value']
             dictionary_title_values.update({"Page Fans":fan_count_value})
 
             page_fan_adds_by_paid_value = page_fan_adds_by_paid_non_paid_unique["insights"]["data"][0]['values'][1]['value']['paid']
@@ -94,7 +94,7 @@ def create_page_info():
                 update_page_post_info_in_xlsx(date,dictionary_title_values,page_info_path_direc)
             else:
                 write_page_post_info_in_xlsx(date,dictionary_title_values,page_info_path_direc)
-       
+            
     def write_page_post_info_in_xlsx(date,dictionary,name_xlsx):
         workbook = xlsxwriter.Workbook(name_xlsx)
         worksheet = workbook.add_worksheet()
