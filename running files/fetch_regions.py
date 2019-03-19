@@ -1,8 +1,11 @@
 from openpyxl import load_workbook
 import numpy as np
+import os,sys
+import xlsxwriter
 import datetime as dt
 import matplotlib.pyplot as plt
 import pandas as pd
+from datetime import datetime
 from tabulate import tabulate
 from pandas import ExcelWriter
 
@@ -31,23 +34,68 @@ def fetch_xlsx(dataframe):
         dataframe_mean = dataframe_mean.nlargest(7)    
         
         #COMMENTED OUT OPTION, TO KEEP THE LATEST VALUES OF THE DATAFRAME
-        '''
+        
         #Latest values of regions
         dataframe_last = dataframe.drop(dataframe.index[:-1])
         dataframe_last = dataframe_last.transpose()
         column_name=list(dataframe_last.columns.values)
-        dataframe_last = dataframe_last.nlargest(6,column_name[0])    
-        '''
-        '''
-        print(dataframe_mean)
-        dataframe_mean = pd.DataFrame(dataframe_mean, columns = [['Regions'],['Fans']])
-        print(dataframe_mean)
-        '''
+        dataframe_last = dataframe_last.nlargest(7,column_name[0])    
+        
+        if os.path.isfile('excels/lite/RegionDF_countinuously.xlsx'):
+                update_regions_continuously(dataframe_last)
+        else:
+                create_regions_continuously(dataframe_last)
 
+        create_regions_simple(dataframe_mean)
+         
+
+def create_regions_continuously(dataframe):
+        name_xlsx = 'excels/lite/RegionDF_countinuously.xlsx'
+        workbook = xlsxwriter.Workbook(name_xlsx)
+        worksheet = workbook.add_worksheet()
+        worksheet.write(0, 0,'Date Fetched')
+        worksheet.write(0, 1,'Region')
+        worksheet.write(0, 2,'Fans')
+
+        todays_date = datetime.today().strftime("%d/%m/%Y")
+
+        region_list = dataframe.index.tolist()
+        value_list = dataframe[dataframe.columns[0]].tolist()
+        row=1
+
+        for i in range(len(region_list)):
+                worksheet.write(row+i,0,todays_date) #write date of fetching 
+                worksheet.write(row+i,1,region_list[i]) #write each region in xlsx 2nd col each row
+                worksheet.write(row+i,2,value_list[i])  #write each region's value in 3rd col of xlsx
+
+        workbook.close()
+        print(name_xlsx + " is created!")
+
+def update_regions_continuously(dataframe):
+        name_xlsx = 'excels/lite/RegionDF_countinuously.xlsx'
+        workbook = load_workbook(name_xlsx)
+        worksheet = workbook.active
+        max_row = worksheet.max_row
+        max_row=max_row+1
+
+        todays_date = datetime.today().strftime("%d/%m/%Y")
+
+        region_list = dataframe.index.tolist()
+        value_list = dataframe[dataframe.columns[0]].tolist()
+
+        for i in range(len(region_list)):
+
+                worksheet.cell(row=max_row+i,column=1).value=todays_date
+                worksheet.cell(row=max_row+i,column=2).value=region_list[i]
+                worksheet.cell(row=max_row+i,column=3).value=value_list[i]
+        workbook.save(name_xlsx)
+        print(name_xlsx + " is updated!")
+
+def create_regions_simple(dataframe):
         #WRITE THE DF TO XLSX IN ORDER TO BE PARSED BY OTHER FILES 
         name_xlsx = 'excels/lite/RegionDF.xlsx'
         writer = ExcelWriter(name_xlsx)
-        dataframe_mean.to_excel(writer,'Sheet1')
+        dataframe.to_excel(writer,'Sheet1')
         writer.save()        
         
         wb2 = load_workbook(name_xlsx)
@@ -55,6 +103,7 @@ def fetch_xlsx(dataframe):
         ws.cell(row=1,column=1).value='Regions'
         ws.cell(row=1,column=2).value='Fans'
         wb2.save(name_xlsx)
+        print(name_xlsx + " is created!")
 
 def main():
 
