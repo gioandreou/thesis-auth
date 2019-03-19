@@ -162,11 +162,16 @@ def update_continously_status_in_xlsx(dictionary,name_xlsx):
     #print(dict_id_position)
 
     for key,value in dict_id_position.items():
+        
         for position in range(len(value)-1) :
             if (worksheet.cell(row=value[position],column=5).value<worksheet.cell(row=value[position+1],column=5).value):
                 worksheet.cell(row=value[position+1],column=13).value='ALIVE'
             else :
                 worksheet.cell(row=value[position+1],column=13).value='DEAD'
+            
+        if(len(value)==1):
+            
+            worksheet.cell(row=value[0],column=13).value='START'
     workbook.save(name_xlsx)      
 
 def write_continously_post_info_in_xlsx(dictionary,name_xlsx):
