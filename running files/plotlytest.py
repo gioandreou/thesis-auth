@@ -8,6 +8,16 @@ import pandas as pd
 import plotly.plotly as py
 import plotly.graph_objs as go
 
+colorss = {
+    'bothgender':"#191226",
+    'women':'#F2355B',
+    'men':'#3B707F',
+    'male1':'#31D2FF',
+    'male2':'#2CBDE5',
+    'male3':'#259DBF',
+    'male4':'#18697F'
+    'male5':'#0C3440'
+}
 
 app = dash.Dash()
 
@@ -91,7 +101,7 @@ bothGenderDefault_fam = go.Bar(
     name='Both Gender',
     text=percentagesBoth_family,
     marker=dict(
-        color='#1B517F'
+        color='#014021'
     )
 )
 menDefault_fam = go.Bar(
@@ -109,7 +119,7 @@ womenDefault_fam = go.Bar(
     name='Women',
     text=percentagesWomen_family,
     marker=dict(
-        color='#35A2FF'
+        color='#CC5954'
     )
 )
 menDefault_edu = go.Bar(
@@ -127,7 +137,7 @@ womenDefault_edu = go.Bar(
     name='Women',
     text=percentagesWomen_edu,
     marker=dict(
-        color='#35A2FF'
+        color='#CC5954'
     )
 )
 
@@ -261,7 +271,7 @@ def update_regions_family(n_clicks, posts_ticker_cont):
     name='Both Gender',
     text=percentagesBoth,
     marker=dict(
-        color='#1B517F')
+        color='#014021')
     )
     menDefault_func = go.Bar(
         x=x_men_family,
@@ -277,7 +287,7 @@ def update_regions_family(n_clicks, posts_ticker_cont):
         name='Women',
         text=percentagesWomen,
         marker=dict(
-            color='#35A2FF')
+            color='#CC5954')
     )
     
     figure_regions_fam = {
