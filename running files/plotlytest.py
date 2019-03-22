@@ -8,29 +8,17 @@ import pandas as pd
 import plotly.plotly as py
 import plotly.graph_objs as go
 
-colorss = {
-    'bothgender':"#191226",
-    'women':'#F2355B',
-    'men':'#3B707F',
-    'male1':'#31D2FF',
-    'male2':'#2CBDE5',
-    'male3':'#259DBF',
-    'male4':'#18697F'
-    'male5':'#0C3440'
-}
 
 app = dash.Dash()
 
 df_family = pd.read_excel('excels/elstat/formated oikogeneiaki katastasi.xlsx')
 df_education = pd.read_excel('excels/elstat/formated epipedo ekpaideusis.xlsx')
+df_occupation = pd.read_excel('excels/elstat/formated katastasi asxolias regions_.xlsx')
 
-'''
-with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-    print(df_education)
-    print(df_education.columns)
-    #ll = df_family[df_family['Region']=='Greece']['Total'].item()
-    #print(ll)
-'''
+shadesblue=['#838B8B','#668B8B','#2F4F4F','#528B8B','#388E8E','#8FD8D8','#70DBDB']
+shadesred=['#FFA07A','#FA8072','#E9967A','#F08080','#CD5C5C','#DC143C','#B22222']
+
+
 #EDUCATION
 education_labels = list(df_education.columns)
 education_labels=education_labels[3:14] #3:end without Total column
@@ -94,14 +82,73 @@ for i in range(len(y_women_family)):
     temp = str(temp)+'%'
     percentagesWomen_family.append(temp)
 
+#OCCUPATION
+agelist = df_occupation['Age'][1:15] #change 1->0 for Total Age bar
+age_dict = {}
+percent_age_dict={}
 
+for age in agelist:
+    age_dict.update({age:[]})
+    percent_age_dict.update({age:[]})
+occupation_labels = list(df_occupation.columns)
+occupation_labels=occupation_labels[3:14]
+
+for item in occupation_labels:
+    for age in agelist:
+        age_dict[age].append(df_occupation[(df_occupation['Region']=='Greece') & (df_occupation['Age']==age)][item].item())
+        temp = round(df_occupation[(df_occupation['Region']=='Greece') & (df_occupation['Age']==age)][item].item() / df_occupation[(df_occupation['Region']=='Greece') & (df_occupation['Age']==age)]['Total'].item()*100,2)
+        percent_age_dict[age].append(str(temp)+'%')
+
+#BAR PLOTS
+#Occupation
+barlist=[]
+red=0
+blue=0
+for age in agelist:
+    if 'F' in age: #Female
+        barlist.append(
+            go.Bar(
+                x=occupation_labels,
+                y=age_dict[age],
+                name=age,
+                text=percent_age_dict[age],
+                marker=dict(
+                    color=shadesred[red])
+                    )
+            )
+        red=red+1
+    elif 'M' in age: #Male
+        barlist.append(
+            go.Bar(
+                x=occupation_labels,
+                y=age_dict[age],
+                name=age,
+                text=percent_age_dict[age],
+                marker=dict(
+                    color=shadesblue[blue])
+                    )
+            )
+        blue=blue+1
+    else: #Total Age
+        barlist.append(
+            go.Bar(
+                x=occupation_labels,
+                y=age_dict[age],
+                name=age,
+                text=percent_age_dict[age],
+                marker=dict(
+                    color='#6B8E23')
+                    )
+            )
+
+#family
 bothGenderDefault_fam = go.Bar(
     x=x_bothGender_family,
     y=y_bothGender_family,
     name='Both Gender',
     text=percentagesBoth_family,
     marker=dict(
-        color='#014021'
+        color='#6B8E23'
     )
 )
 menDefault_fam = go.Bar(
@@ -110,7 +157,7 @@ menDefault_fam = go.Bar(
     name='Men',
     text=percentagesMen_family,
     marker=dict(
-        color='#82C5FF'
+        color=shadesblue[1]
     )
 )
 womenDefault_fam = go.Bar(
@@ -119,16 +166,17 @@ womenDefault_fam = go.Bar(
     name='Women',
     text=percentagesWomen_family,
     marker=dict(
-        color='#CC5954'
+        color=shadesred[1]
     )
 )
+#education
 menDefault_edu = go.Bar(
     x=education_labels,
     y=y_men_edu,
     name='Men',
     text=percentagesMen_edu,
     marker=dict(
-        color='#82C5FF'
+        color=shadesblue[-2]
     )
 )
 womenDefault_edu = go.Bar(
@@ -137,7 +185,7 @@ womenDefault_edu = go.Bar(
     name='Women',
     text=percentagesWomen_edu,
     marker=dict(
-        color='#CC5954'
+        color=shadesred[2]
     )
 )
 
@@ -146,12 +194,10 @@ womenDefault_edu = go.Bar(
 colors = {
     'background': '#ffffff',
     'text': '#191919'}
-
 graph_fonts={
     'family':'sans-serif',
     'size':'12',
     'color':colors['text']}
-
 style_fonts ={
     'textAlign': 'center',
     'color': colors['text'],
@@ -168,7 +214,7 @@ app.layout = html.Div(children=[
     html.H1(
             children='Elstat Demographic Data',
             style=style_fonts),
-        html.Div([
+    html.Div([
             html.H3('Select Region:', style=style_fonts),
             dcc.Dropdown(
             id='my_ticker_symbol_region',
@@ -177,12 +223,12 @@ app.layout = html.Div(children=[
             multi=False,
             style={'fontSize':16})],          
                 style={'display':'inline-block', 'verticalAlign':'top', 'width':'30%'}),         
-        html.Div([
+    html.Div([
             html.Button(
                 id='submit-button-region',
                 n_clicks=0,
                 children='Submit',
-                style={'fontSize':24, 'marginLeft':'30px'}),
+                style={'fontSize':24, 'marginLeft':'30px','border':'1px solid', 'border-radius': 20}),
                 ], 
                 style={'display':'inline-block'}),
     
@@ -205,6 +251,7 @@ app.layout = html.Div(children=[
                     'barmode': 'relative', 
                     'title': 'Greece Family Status'}
             }),
+    
     dcc.Graph(
         id='education-graph',
         figure={
@@ -223,6 +270,26 @@ app.layout = html.Div(children=[
                     'bargroupgap': 0.1, 
                     'barmode': 'relative', 
                     'title': 'Greece Education Status'}
+            }),
+    
+    dcc.Graph(
+        id='occupation-graph',
+        figure={
+            'data': barlist,
+            'layout': { 'xaxis':{'tickfont':{'size':14,'color':'rgb(107, 107, 107)'},
+                            'automargin':True,},
+                    
+                    'yaxis':{'title':'Scale',
+                        'autorange':True,
+                        'type':'log',
+                        },
+                    'plot_bgcolor': colors['background'],
+                    'paper_bgcolor': colors['background'],
+                    'font': graph_fonts,
+                    'bargap': 0.1, 
+                    'bargroupgap': 0.1, 
+                    'barmode': 'group', 
+                    'title': 'Greece Occupation Status'}
             })
 
     
@@ -271,7 +338,7 @@ def update_regions_family(n_clicks, posts_ticker_cont):
     name='Both Gender',
     text=percentagesBoth,
     marker=dict(
-        color='#014021')
+        color='#6B8E23')
     )
     menDefault_func = go.Bar(
         x=x_men_family,
@@ -279,7 +346,7 @@ def update_regions_family(n_clicks, posts_ticker_cont):
         name='Men',
         text=percentagesMen,
         marker=dict(
-            color='#82C5FF')
+            color=shadesblue[1])
     )
     womenDefault_dunc = go.Bar(
         x=x_women_family,
@@ -287,7 +354,7 @@ def update_regions_family(n_clicks, posts_ticker_cont):
         name='Women',
         text=percentagesWomen,
         marker=dict(
-            color='#CC5954')
+            color=shadesred[1])
     )
     
     figure_regions_fam = {
@@ -308,8 +375,6 @@ def update_regions_family(n_clicks, posts_ticker_cont):
                     'title': posts_ticker_cont+' Family Status'}
             }
     return figure_regions_fam
-
-
 
 
 @app.callback(
@@ -341,7 +406,7 @@ def update_regions_education(n_clicks, posts_ticker_cont):
         name='Men',
         text=percentagesMen_edu,
         marker=dict(
-            color='#82C5FF')
+            color=shadesblue[-2])
     )
     womenDefault_edu_func = go.Bar(
         x=education_labels,
@@ -349,7 +414,7 @@ def update_regions_education(n_clicks, posts_ticker_cont):
         name='Women',
         text=percentagesWomen_edu,
         marker=dict(
-            color='#35A2FF')
+            color=shadesred[2])
     )
 
     figure_regions_edu = {
@@ -370,6 +435,84 @@ def update_regions_education(n_clicks, posts_ticker_cont):
                     'title': posts_ticker_cont+' Education Status'}
             }
     return figure_regions_edu
+
+
+@app.callback(
+    Output('occupation-graph', 'figure'),
+    [Input('submit-button-region', 'n_clicks')],
+    [State('my_ticker_symbol_region', 'value')])
+def update_occupation_graph(n_clicks, posts_ticker_cont):
+    
+    age_dict = {}
+    percent_age_dict={}
+    for age in agelist:
+        age_dict.update({age:[]})
+        percent_age_dict.update({age:[]})
+    
+    for item in occupation_labels:
+        for age in agelist:
+            age_dict[age].append(df_occupation[(df_occupation['Region']==posts_ticker_cont) & (df_occupation['Age']==age)][item].item())
+            temp = round(df_occupation[(df_occupation['Region']==posts_ticker_cont) & (df_occupation['Age']==age)][item].item() / df_occupation[(df_occupation['Region']==posts_ticker_cont) & (df_occupation['Age']==age)]['Total'].item()*100,2)
+            percent_age_dict[age].append(str(temp)+'%')
+
+    barlist=[]
+    red=0
+    blue=0
+    for age in agelist:
+        if 'F' in age: #Female
+            barlist.append(
+                go.Bar(
+                    x=occupation_labels,
+                    y=age_dict[age],
+                    name=age,
+                    text=percent_age_dict[age],
+                    marker=dict(
+                        color=shadesred[red])
+                        )
+                )
+            red=red+1
+        elif 'M' in age: #Male
+            barlist.append(
+                go.Bar(
+                    x=occupation_labels,
+                    y=age_dict[age],
+                    name=age,
+                    text=percent_age_dict[age],
+                    marker=dict(
+                        color=shadesblue[blue])
+                        )
+                )
+            blue=blue+1
+        else: #Total Age
+            barlist.append(
+                go.Bar(
+                    x=occupation_labels,
+                    y=age_dict[age],
+                    name=age,
+                    text=percent_age_dict[age],
+                    marker=dict(
+                        color='#6B8E23')
+                        )
+                )
+        
+    occupation_figure={
+            'data': barlist,
+            'layout': { 'xaxis':{'tickfont':{'size':14,'color':'rgb(107, 107, 107)'},
+                            'automargin':True,},
+                    
+                    'yaxis':{'title':'Scale',
+                        'autorange':True,
+                        'type':'log',
+                        },
+                    'plot_bgcolor': colors['background'],
+                    'paper_bgcolor': colors['background'],
+                    'font': graph_fonts,
+                    'bargap': 0.1, 
+                    'bargroupgap': 0.1, 
+                    'barmode': 'group', 
+                    'title': posts_ticker_cont+' Occupation Status'}
+            }
+    return occupation_figure
 
 if __name__ == '__main__':
     app.run_server(debug=True)
