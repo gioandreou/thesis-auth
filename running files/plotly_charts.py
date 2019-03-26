@@ -550,13 +550,15 @@ def update_age_gender_period(n_clicks, posts_ticker_cont):
     # if post is not dead, dateEnd= the latest alive date 
     
     dateStart = (df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='START')]['Date Fetched'].values[0])
-
-    if(len(df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='DEAD')]['Date Fetched'].values)==0):
+    #only START DATE then Start is the same as end
+    if(len(df_posts_cont[df_posts_cont['ID']==posts_ticker_cont])==1 ):
+        dateEnd = dateStart
+    elif(len(df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='DEAD')]['Date Fetched'].values)==0):
         dateEnd = (df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='ALIVE')]['Date Fetched'].values[-1])
     else:
         dateEnd = (df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='DEAD')]['Date Fetched'].values[0])
  
-    df_age_gender_func = df_ag.loc[(df_ag['Date']>=dateStart) & (df_ag['Date']<=dateEnd),:]
+    df_age_gender_func = df_ag.loc[(pd.to_datetime(df_ag['Date'])>=dateStart) & (pd.to_datetime(df_ag['Date'])<=dateEnd),:]
 
     traces_age_gender=([
                 {'x': df_age_gender_func['Date'], 'y': df_age_gender_func['F.13-17'], 'type': 'lines', 'name': 'F.13-17'},
