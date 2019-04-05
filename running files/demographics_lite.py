@@ -28,6 +28,7 @@ if __name__ == '__main__':
     page_fans_gender_age = graph.get_object(id='974146599436745', fields='insights.metric(page_fans_gender_age)')
     
     #print (json.dumps(page_fans_locale["insights"]["data"][0]['values'][1], indent=4))
+
 def put_zeros_in_empty_cells(file_name):
             # load demo.xlsx 
         wb=load_workbook(file_name)
@@ -60,10 +61,11 @@ def create_age_gender(): #working 100%
         age_gender_path_direc="excels/lite/"+"lite-Ages-Gender.xlsx"
         #write_age_gender_in_xlsx(page_age_gender_day,age_gender_path_direc)
         #calling functions
-            #content
+        #content
         #print(page_age_gender_day)
         
         if os.path.isfile(age_gender_path_direc):
+            
             update_age_gender_in_xlsx(page_age_gender_day,age_gender_path_direc)
         else:
             write_age_gender_in_xlsx(page_age_gender_day,age_gender_path_direc)  
@@ -97,13 +99,20 @@ def create_age_gender(): #working 100%
         date_to_write= date.split("T",1)[0] #date without the T e.g. 2019-03-05T08:00:00+0000->2019-03-05
         date_to_write = datetime.strptime(date_to_write, '%Y-%m-%d').strftime(date_format)
         ws.cell(last_row+1,1).value = date_to_write
-
+        
         All_Ages = list(dictionary[date].keys())
+        #delete values other than F. and M.
+        
+        for item in All_Ages:
+            if 'U' in item:
+                All_Ages.remove(item)
+                
         col=2
         for item in range(len(All_Ages)):
             found=False
             minpos=item+col
             while(found==False):
+                
                 if(ws.cell(1,minpos).value == All_Ages[item]):
                     posisition_found=minpos
                     found=True
@@ -111,6 +120,7 @@ def create_age_gender(): #working 100%
                     ws.cell(last_row+1,posisition_found).value = dictionary[date][All_Ages[item]]
                 minpos=minpos+1
         wb2.save(name_xlsx)
+        
         #put_zeros_in_empty_cells(name_xlsx)
         put_zeros_in_empty_cells(name_xlsx)
         print(name_xlsx + " is updated!")   
@@ -276,24 +286,35 @@ def create_city_country():
         ws.cell(last_row+1,1).value = date_to_write
 
         All_cities = list(dictionary[date].keys())
+        All_cities_only_city = []
+        for city in All_cities:
+            temp = city.split(",",1)[0]
+            All_cities_only_city.append(temp)
+
         col=2
         already_city_pos_xlsx = {} 
+        already_city_pos_xlsx_only_city = {}
         # dict for cities : position in first line of xlsx 
         # to know where to add each new city
         for pos in range(col,ws.max_column+1):
             temp_dict = {ws.cell(1,pos).value : pos}
+            
+            temp_only_city = ws.cell(1,pos).value 
+            temp_only_city = temp_only_city.split(",",1)[0]
+            temp_dict_only_city = {temp_only_city : pos }
+           
             already_city_pos_xlsx.update(temp_dict)
-        #print(already_city_pos_xlsx.keys())
-
-        for i in range(len(All_cities)):
+            already_city_pos_xlsx_only_city.update(temp_dict_only_city)
+        
+        for i in range(len(All_cities_only_city)):
             #if the new locale are already in xlsx
-            if  All_cities[i] in list(already_city_pos_xlsx):
+            if  All_cities_only_city[i] in list(already_city_pos_xlsx_only_city):
                 #print("found"+str(All_locale[i])+" at "+str(already_locale_pos_xlsx[All_locale[i]]))
                 
                 #last row,position that has been found from dictionary
                 #value = value from dictionary with key=date ,sub key=locale 
                 ws.cell(last_row+1,
-                already_city_pos_xlsx[All_cities[i]]).value = dictionary[date][All_cities[i]]
+                already_city_pos_xlsx_only_city[All_cities_only_city[i]]).value = dictionary[date][All_cities[i]]
             
             else :
                 #write new locale name in 1st line with other and at that position last_row its value
@@ -304,7 +325,9 @@ def create_city_country():
                 ws.cell(1,last_col).value = All_cities[i]
                 ws.cell(last_row+1,last_col).value = dictionary[date][All_cities[i]]
                 last_col+=1
+        
         wb2.save(name_xlsx)
+        
         #put_zeros_in_empty_cells(name_xlsx)
         print(name_xlsx + " is updated!")
         put_zeros_in_empty_cells(name_xlsx)
@@ -313,9 +336,6 @@ def create_city_country():
     get_country()
 
 
-def all_functions():
-    create_age_gender()
-    create_locale()
-    create_city_country()
-
-all_functions()
+create_age_gender()
+create_locale()
+create_city_country()
