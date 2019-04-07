@@ -399,7 +399,7 @@ app.layout = html.Div(children=[
                     'plot_bgcolor': colors['background'],
                     'paper_bgcolor': colors['background'],
                     'font': graph_fonts,
-                    'title': 'Lines of  Each Age-Gender Group at Specific Post Dates'}}),
+                    'title': 'Lines of Each Age-Gender Group at Specific Post Dates'}}),
 
         dcc.Graph(
             id='linegraph_posts_cont_regions',
