@@ -4,9 +4,20 @@ import dash_html_components as html
 from dash.dependencies import Input, Output, State
 from datetime import datetime
 import pycountry
+import dateutil.parser
+import numpy as np
 import pandas as pd
 import plotly.plotly as py
 import plotly.graph_objs as go
+
+def convert_string(s):
+    datetimeObj = dateutil.parser.parse(s)
+    return datetimeObj
+
+def convert_time_date64(dt):
+    dt64 = np.datetime64(dt)
+    ts = (dt64 - np.datetime64('1970-01-01T00:00:00Z')) / np.timedelta64(1, 's')
+    return datetime.utcfromtimestamp(ts)
 
 
 app = dash.Dash()
@@ -427,6 +438,7 @@ def update_date_alive(n_clicks, posts_ticker_cont):
     child = ['Post is alive from: '+dateFrom+' until: '+dateUntil]
     return child
 
+
 @app.callback(
     Output('text-age-targetgroup', 'children'),
     [Input('submit-button-posts-cont', 'n_clicks')],
@@ -435,31 +447,42 @@ def update_age_growth(n_clicks, posts_ticker_cont):
 
     list_ages = list(df_age_gender.columns.values)
     list_ages.pop(0)
-    '''
-    biggest = -1
+    biggest=-1 
     for age in list_ages:
-        
-        start = df_test_age_gender[df_test_age_gender['Date']==
-                df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='START')]['Date Fetched'].values[0]][age]
-        
-        end = df_test_age_gender[df_test_age_gender['Date']==
-                df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='DEAD')]['Date Fetched'].values[0]][age]
+        date_start = df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='START')]['Date Fetched'].values[0]
 
-        difference = end-start 
+        start_value = int(df_age_gender[df_age_gender['Date']==date_start][age].item())
+        
+        if(len(df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='DEAD')]['Date Fetched'].values)==0):
+            date_end = df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='ALIVE')]['Date Fetched'].values[-1]
+        else:
+            date_end = df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='DEAD')]['Date Fetched'].values[0]
+        
+        latest_date_in_age_xlsx = df_age_gender['Date'].iloc[-1].isoformat()
+        cnv_latest_xlsx = convert_string(latest_date_in_age_xlsx)
+        cnv_date_end=convert_time_date64(date_end)
+        
+        if cnv_latest_xlsx<cnv_date_end:
+            date_to_use_as_last = cnv_latest_xlsx
+        else:
+            date_to_use_as_last = cnv_date_end
+        
+        end_value = int(df_age_gender[df_age_gender['Date']==date_to_use_as_last][age].item())
+        
+        difference = end_value-start_value 
         if difference >= biggest:
-            biggest_start = start
-            biggest_end = end
+            biggest_start = start_value
+            biggest_end = end_value
             age_group = age 
-            percentage = round(((end-start)/start)*100,2)
+            percentage = round(((end_value-biggest_start)/biggest_start)*100,2)
             biggest = difference
+        
+       
+    kid = ['Bigggest Growth at Ages: '+str(age_group)+' from '+ str(biggest_start) +' to '+ str(biggest_end) + ' ['+ str(percentage)+'%]']
 
-    child = ['Bigggest Growth at Ages: '+str(age_group)+' from '+ str(biggest_start) +' to '+ str(biggest_end) + ' ['+ str(percentage)+'%]']
-    pooio einaii to problima re pousti
-    '''
-    kid = [list_ages]
     return kid
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
 
-    
