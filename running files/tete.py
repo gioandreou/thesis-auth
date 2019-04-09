@@ -454,6 +454,7 @@ def update_age_growth(n_clicks, posts_ticker_cont):
             biggest = difference
 
     child = ['Bigggest Growth at Ages: '+str(age_group)+' from '+ str(biggest_start) +' to '+ str(biggest_end) + ' ['+ str(percentage)+'%]']
+    pooio einaii to problima re pousti
     '''
     kid = [list_ages]
     return kid
