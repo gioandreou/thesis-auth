@@ -447,25 +447,26 @@ def update_age_growth(n_clicks, posts_ticker_cont):
 
     list_ages = list(df_age_gender.columns.values)
     list_ages.pop(0)
+    
+    date_start = df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='START')]['Date Fetched'].values[0]
+    if(len(df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='DEAD')]['Date Fetched'].values)==0):
+            date_end = df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='ALIVE')]['Date Fetched'].values[-1]
+    else:
+        date_end = df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='DEAD')]['Date Fetched'].values[0]
+    
+    latest_date_in_age_xlsx = df_age_gender['Date'].iloc[-1].isoformat()
+    cnv_latest_xlsx = convert_string(latest_date_in_age_xlsx)
+    cnv_date_end=convert_time_date64(date_end)
+    
+    if cnv_latest_xlsx<cnv_date_end:
+        date_to_use_as_last = cnv_latest_xlsx
+    else:
+        date_to_use_as_last = cnv_date_end
     biggest=-1 
+
     for age in list_ages:
-        date_start = df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='START')]['Date Fetched'].values[0]
 
         start_value = int(df_age_gender[df_age_gender['Date']==date_start][age].item())
-        
-        if(len(df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='DEAD')]['Date Fetched'].values)==0):
-            date_end = df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='ALIVE')]['Date Fetched'].values[-1]
-        else:
-            date_end = df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='DEAD')]['Date Fetched'].values[0]
-        
-        latest_date_in_age_xlsx = df_age_gender['Date'].iloc[-1].isoformat()
-        cnv_latest_xlsx = convert_string(latest_date_in_age_xlsx)
-        cnv_date_end=convert_time_date64(date_end)
-        
-        if cnv_latest_xlsx<cnv_date_end:
-            date_to_use_as_last = cnv_latest_xlsx
-        else:
-            date_to_use_as_last = cnv_date_end
         
         end_value = int(df_age_gender[df_age_gender['Date']==date_to_use_as_last][age].item())
         
@@ -473,8 +474,8 @@ def update_age_growth(n_clicks, posts_ticker_cont):
         if difference >= biggest:
             biggest_start = start_value
             biggest_end = end_value
-            age_group = age 
-            percentage = round(((end_value-biggest_start)/biggest_start)*100,2)
+            age_group = age
+            percentage = round(((biggest_end-biggest_start)/biggest_start)*100,2)
             biggest = difference
         
        
@@ -482,6 +483,56 @@ def update_age_growth(n_clicks, posts_ticker_cont):
 
     return kid
 
+
+@app.callback(
+    Output('text-region-targetgroup', 'children'),
+    [Input('submit-button-posts-cont', 'n_clicks')],
+    [State('my_ticker_symbol_post_cont', 'value')])
+def update_region_growth(n_clicks, posts_ticker_cont):
+    
+    date_start = df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='START')]['Date Fetched'].values[0]
+    date_start = convert_time_date64(date_start)
+    
+    if(len(df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='DEAD')]['Date Fetched'].values)==0):
+        date_end = df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='ALIVE')]['Date Fetched'].values[-1]
+    else:
+        date_end = df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='DEAD')]['Date Fetched'].values[0]
+
+    latest_date_in_region_xlsx = df_regions_fans['Date Fetched'].iloc[-1].isoformat()
+    cnv_latest_xlsx = convert_string(latest_date_in_region_xlsx)
+    cnv_date_end=convert_time_date64(date_end)
+
+    if cnv_latest_xlsx<cnv_date_end:
+        date_to_use_as_last = cnv_latest_xlsx
+    else:
+        date_to_use_as_last = cnv_date_end
+    
+    starting_regions = df_regions_fans[df_regions_fans['Date Fetched']==date_start]['Region']
+    ending_regions =df_regions_fans[df_regions_fans['Date Fetched']==date_to_use_as_last]['Region']
+    common_regions = pd.Series(list(set(starting_regions).intersection(set(ending_regions))))
+    
+    biggest=-1 
+    for region in common_regions:
+        start_value = df_regions_fans[
+            (df_regions_fans['Date Fetched']==date_start) & (df_regions_fans['Region']==region)]['Fans'].item()
+        
+        end_value = df_regions_fans[
+            (df_regions_fans['Date Fetched']==date_to_use_as_last) & (df_regions_fans['Region']==region)]['Fans'].item()
+        
+        difference = end_value-start_value 
+        
+        if difference >= biggest:
+            biggest_start = start_value
+            biggest_end = end_value
+            area = region
+            percentage = round(((biggest_end-biggest_start)/biggest_start)*100,2)
+            biggest = difference
+        
+    child = ['Bigggest Growth at Regions: '+str(area)+' from '+ str(biggest_start) +' to '+ str(biggest_end)+ ' ['+ str(percentage)+'%]']
+    
+    #return [str(latest_date_in_region_xlsx)+" - "+str(cnv_latest_xlsx)+" - "+str(cnv_date_end)+" - "+str(date_to_use_as_last)]
+
+    return child
 
 if __name__ == '__main__':
     app.run_server(debug=True)
