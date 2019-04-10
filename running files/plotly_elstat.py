@@ -228,7 +228,7 @@ app.layout = html.Div(children=[
                 id='submit-button-region',
                 n_clicks=0,
                 children='Submit',
-                style={'fontSize':24, 'marginLeft':'30px','border':'1px solid', 'border-radius': 20}),
+                style={'fontSize':24, 'marginLeft':'30px'}),
                 ], 
                 style={'display':'inline-block'}),
     

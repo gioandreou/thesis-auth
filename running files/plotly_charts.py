@@ -79,7 +79,9 @@ options_countries=[]
 list_post_ids = list(df_posts['ID'])
 options_posts=[]
 for post_id in list_post_ids:
-    options_posts.append({'label':'{} '.format(df_posts.loc[df_posts['ID']==post_id]['Message'].item()), 'value':post_id})
+    templist = list(set(df_posts.loc[df_posts['ID']==post_id]['Message']))
+    templist[0] = templist[0][:100]
+    options_posts.append({'label':'{} '.format(templist[0]), 'value':post_id})
 
 #world map 
 df_countries_map = df_countries.drop('Date',1)
