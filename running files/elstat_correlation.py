@@ -30,9 +30,13 @@ def print_dataframes_education(regions,dataframe):
     border_msg('EDUCATIONAL STATS')
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
         regions_labels_list = list(regions['Regions']) #LIST WITH THE REGIONS THAT EXIST IN FB PAGE
-        #print(regions_labels_list)
+        print(regions_labels_list)
+        
         region_df = pd.DataFrame() #NEW DF TO STORE THE FORMATED DATA
+        region_df['Region']=dataframe['Region']
+        region_df['Gender']=dataframe['Gender']
         region_df['Total']=dataframe['Total']
+        #print(dataframe)
         
         #HIGHER EDUCATION = SUM OF PEOPLE THAT ARE IN PHD+MASTERS+BACHERLOR+ATEI LEVEL
         #MIDDLE EDUCATION = SUM OF PEOPLE THAT ARE IN UPRS+IEK+HIGH SCHOOL+ VUPS+VPS LEVEL
@@ -59,7 +63,7 @@ def print_dataframes_education(regions,dataframe):
         #ALL THE REGIONS IN GREECE THAT FB CAN USE. UNUSED 
         #print(regions_labels_list)
         #print(region_df)
-        
+        #print(region_df.loc[region_df['Region']=='Eastern Macedonia and Thrace, Greece',['Gender','Total','Higher Education','Middle Education','Lower Education']])
         
         for item in regions_labels_list: #item is a region of the region_list
             print("\n\n")
@@ -67,23 +71,23 @@ def print_dataframes_education(regions,dataframe):
             #PRINT REGION 
             print(item) 
             #PRINT THE STATS OF ELSTAT FOR THIS REGION
-            print(region_df.loc[(item),['Total','Higher Education','Middle Education','Lower Education']])
+            print(region_df.loc[region_df['Region']==item,['Gender','Total','Higher Education','Middle Education','Lower Education']])
             print("\nFacebook Page Correlation:\n")
             
             #ADD A LEADING WHITESPACE TO THE NAME INORDER TO BE MATCHED WITH THE INDEXES OF THE REGIONS DF
-            #region = " "+item 
+            #region = ""+item 
             
             value = regions.loc[regions['Regions']==item]['Fans'].item()
             
             #PASS THE VALUES OF MALES AND FEMALES FOR HIGHER, MID, LOWER EDUCATION 
-            higher_percent_male = region_df.loc[(item),['Higher Education Percentage[%]']].values[0]
-            higher_percent_female = region_df.loc[(item),['Higher Education Percentage[%]']].values[1]
+            higher_percent_male = region_df.loc[region_df['Region']==item,['Higher Education Percentage[%]']].values[0]
+            higher_percent_female = region_df.loc[region_df['Region']==item,['Higher Education Percentage[%]']].values[1]
 
-            middle_percent_male = region_df.loc[(item),['Middle Education Percentage[%]']].values[0]
-            middle_percent_female = region_df.loc[(item),['Middle Education Percentage[%]']].values[1]
+            middle_percent_male = region_df.loc[region_df['Region']==item,['Middle Education Percentage[%]']].values[0]
+            middle_percent_female = region_df.loc[region_df['Region']==item,['Middle Education Percentage[%]']].values[1]
 
-            lower_percent_male = region_df.loc[(item),['Lower Education Percentage[%]']].values[0]
-            lower_percent_female = region_df.loc[(item),['Lower Education Percentage[%]']].values[1]
+            lower_percent_male = region_df.loc[region_df['Region']==item,['Lower Education Percentage[%]']].values[0]
+            lower_percent_female = region_df.loc[region_df['Region']==item,['Lower Education Percentage[%]']].values[1]
             
             #PRETTY PRINTING
             print("Higher Edu: Male={a}\t Female={b}\t".format(
@@ -94,10 +98,11 @@ def print_dataframes_education(regions,dataframe):
                 a=(value*middle_percent_male/100).round(2), 
                 b=(value*middle_percent_female/100).round(2), 
                 ))
-            print("Lower Edu: Male={a}\t Female={b}\t".format(
+            print("Lower Edu:  Male={a}\t Female={b}\t".format(
                 a=(value*lower_percent_male/100).round(2), 
                 b=(value*lower_percent_female/100).round(2), 
                 ))
+        
         border_msg('END OF EDUCATIONAL STATS')
         
 def print_dataframe_age_occupation(regions,dataframe):
@@ -115,36 +120,38 @@ def print_dataframe_age_occupation(regions,dataframe):
     #DROP THE REST COLUMNS
     df_ages_final = df_ages_top.drop(df_ages_top.columns[0:-1], axis=1)
     ages_list = list(df_ages_final.index)
+    print('Top 4 Age-Gender Groups:')
    
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
         
         #INITIALISE NEW DF
-        ages_df = pd.DataFrame()
+        ages_df = pd.DataFrame(columns=['Ages', 'Total', 'Total Active', 'Employed\n', 'Unemployed Total',
+       'Unemployed Former Employed', 'Unemployed Youths', 'Non Active Total',
+       'Non Active Students', 'Non Active Retired\n', 'Non Active Rentier\n',
+       'Non Active Housekeeping', 'Non Active Rest'])
         
         #APPEND-JOIN ALL AGES IN TO A SINGLE ONE DF
         for item in ages_list:
-            temp = dataframe.loc[(item),:]
-            ages_df = ages_df.join(temp, how='outer')    
-        
-        #TRANSPOSE TO CHANGE COL<->ROW
-        ages_trans_df = transpose(ages_df,2)
+            temp = dataframe.loc[dataframe['Ages']==(item),:]
+            ages_df = ages_df.append(temp)   
+        #print(ages_df)
 
         #INITIALISE NEW DF
         percentages_ages_df = pd.DataFrame()
         #ADD TO THE DF THE FOLLOWING COLUMNS (VALUE/TOTAL %)
-        percentages_ages_df['Total Active %']= ((ages_trans_df['Total Active']/ages_trans_df['Total'])*100).round(2)
-        percentages_ages_df['Employed\n %']= ((ages_trans_df['Employed\n']/ages_trans_df['Total'])*100).round(2)
-        percentages_ages_df['Unemployed Total %']= ((ages_trans_df['Unemployed Total']/ages_trans_df['Total'])*100).round(2)
-        percentages_ages_df['Unemployed Former Employed %']= ((ages_trans_df['Unemployed Former Employed']/ages_trans_df['Total'])*100).round(2)
-        percentages_ages_df['Non Active Total %']= ((ages_trans_df['Non Active Total']/ages_trans_df['Total'])*100).round(2)
-        percentages_ages_df['Non Active Students %']= ((ages_trans_df['Non Active Students']/ages_trans_df['Total'])*100).round(2)
-        percentages_ages_df['Non Active Retired\n %']= ((ages_trans_df['Non Active Retired\n']/ages_trans_df['Total'])*100).round(2)
-        percentages_ages_df['Non Active Rentier\n %']= ((ages_trans_df['Non Active Rentier\n']/ages_trans_df['Total'])*100).round(2)
-        percentages_ages_df['Non Active Housekeeping %']= ((ages_trans_df['Non Active Housekeeping']/ages_trans_df['Total'])*100).round(2)
+        percentages_ages_df['Age'] = ages_df['Ages']
+        percentages_ages_df['Total Active %']= ((ages_df['Total Active']/ages_df['Total'])*100).astype(float).round(2)
+        percentages_ages_df['Employed\n %']= ((ages_df['Employed\n']/ages_df['Total'])*100).astype(float).round(2)
+        percentages_ages_df['Unemployed Total %']= ((ages_df['Unemployed Total']/ages_df['Total'])*100).astype(float).round(2)
+        percentages_ages_df['Unemployed Former Employed %']= ((ages_df['Unemployed Former Employed']/ages_df['Total'])*100).astype(float).round(2)
+        percentages_ages_df['Non Active Total %']= ((ages_df['Non Active Total']/ages_df['Total'])*100).astype(float).round(2)
+        percentages_ages_df['Non Active Students %']= ((ages_df['Non Active Students']/ages_df['Total'])*100).astype(float).round(2)
+        percentages_ages_df['Non Active Retired\n %']= ((ages_df['Non Active Retired\n']/ages_df['Total'])*100).astype(float).round(2)
+        percentages_ages_df['Non Active Rentier\n %']= ((ages_df['Non Active Rentier\n']/ages_df['Total'])*100).astype(float).round(2)
+        percentages_ages_df['Non Active Housekeeping %']= ((ages_df['Non Active Housekeeping']/ages_df['Total'])*100).astype(float).round(2)
         
         print(percentages_ages_df)
 
-        #print(dataframe.loc[('Female', 'F.13-17'),:])
     border_msg('END OF AGE AND OCCUPATIONAL STATS')
 
 def print_dataframe_family(regions,dataframe):
@@ -153,9 +160,11 @@ def print_dataframe_family(regions,dataframe):
     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
         intial_region_list = list(regions['Regions']) #LIST WITH THE REGIONS THAT EXIST IN FB PAGE
         regions_labels_list=striplist(intial_region_list) #LIST ITEMS WITHOUT LEADING SPACE E.X." NAME"
-
+        
         regions_family_df = pd.DataFrame() #NEW DF TO STORE THE FORMATED DATA
+        
         #ADD COLUMNS TO THE DF WITH THE STATS FROM ELSTAT
+        regions_family_df['Region']=dataframe['Region']
         regions_family_df['Both Genders Non Married %']=((dataframe['Both Genders Non Married']/dataframe['Total'])*100).round(2)
         regions_family_df['Both Genders Married %']=((dataframe['Both Genders Married']/dataframe['Total'])*100).round(2)
         regions_family_df['Both Genders Widower %']=((dataframe['Both Genders Widower\n']/dataframe['Total'])*100).round(2)
@@ -164,50 +173,48 @@ def print_dataframe_family(regions,dataframe):
         regions_family_df['Both Genders Separated %']=((dataframe['Both Genders Separated']/dataframe['Total'])*100).round(2)
         regions_family_df['Both Genders Widower From Civil Partnership %']=((dataframe['Both Genders Widower From Civil Partnership']/dataframe['Total'])*100).round(2)
         regions_family_df['Both Genders Separated From Civil Partnership %']=((dataframe['Both Genders Separated From Civil Partnership']/dataframe['Total'])*100).round(2)
-
+        
         #ITERATE THROUGH EVERY REGION IN THE LIST
         for item in regions_labels_list:
             print("\n\n")
             print(50*"--")
+            
             #PRINT REGION 
             print(item) 
             #PRINT THE STATS OF ELSTAT FOR THIS REGION
-            print(regions_family_df.loc[(item),:])#PRINT THE DF WITH THE STATS OF ELSTAT
+            print(regions_family_df.loc[regions_family_df['Region']==item,:])#PRINT THE DF WITH THE STATS OF ELSTAT
             print("\nFacebook Page Correlation:\n")
+            
             #VALUE = NUMBER OF FANS OF EACH REGION
             value = regions.loc[regions['Regions']==item]['Fans'].item()
+
             #PRINTING THE STATS OF THE FB PAGE (NUMBER OF FANS * PERCENTAGE OF ELSTAT)
-            print("Fans of Both Genders Non Married in FB Page :\t{a}".format(a=(value*regions_family_df.loc[(item),['Both Genders Non Married %']].values[0]/100).round(0)))
-            print("Fans of Both Genders Married in FB Page :\t{a}".format(a=(value*regions_family_df.loc[(item),['Both Genders Married %']].values[0]/100).round(0)))
-            print("Fans of Both Genders Widower in FB Page :\t{a}".format(a=(value*regions_family_df.loc[(item),['Both Genders Widower %']].values[0]/100).round(0)))
-            print("Fans of Both Genders Divorced in FB Page :\t{a}".format(a=(value*regions_family_df.loc[(item),['Both Genders Divorced %']].values[0]/100).round(0)))
-            print("Fans of Both Genders Civil Partnership in FB Page :\t{a}".format(a=(value*regions_family_df.loc[(item),['Both Genders Civil Partnership %']].values[0]/100).round(0)))
-            print("Fans of Both Genders Separated in FB Page :\t{a}".format(a=(value*regions_family_df.loc[(item),['Both Genders Separated %']].values[0]/100).round(0)))
-            print("Fans of Both Genders Widower From Civil Partnership in FB Page :\t{a}".format(a=(value*regions_family_df.loc[(item),['Both Genders Widower From Civil Partnership %']].values[0]/100).round(0)))
-            print("Fans of Both Genders Separated From Civil Partnership in FB Page :\t{a}".format(a=(value*regions_family_df.loc[(item),['Both Genders Separated From Civil Partnership %']].values[0]/100).round(0)))
+            print("Fans of Both Genders Non Married in FB Page :\t{a}".format(a=(value*regions_family_df.loc[regions_family_df['Region']==item,['Both Genders Non Married %']].values[0]/100).round(2)))
+            print("Fans of Both Genders Married in FB Page :\t{a}".format(a=(value*regions_family_df.loc[regions_family_df['Region']==item,['Both Genders Married %']].values[0]/100).round(2)))
+            print("Fans of Both Genders Widower in FB Page :\t{a}".format(a=(value*regions_family_df.loc[regions_family_df['Region']==item,['Both Genders Widower %']].values[0]/100).round(2)))
+            print("Fans of Both Genders Divorced in FB Page :\t{a}".format(a=(value*regions_family_df.loc[regions_family_df['Region']==item,['Both Genders Divorced %']].values[0]/100).round(2)))
+            print("Fans of Both Genders Civil Partnership in FB Page :\t{a}".format(a=(value*regions_family_df.loc[regions_family_df['Region']==item,['Both Genders Civil Partnership %']].values[0]/100).round(2)))
+            print("Fans of Both Genders Separated in FB Page :\t{a}".format(a=(value*regions_family_df.loc[regions_family_df['Region']==item,['Both Genders Separated %']].values[0]/100).round(2)))
+            print("Fans of Both Genders Widower From Civil Partnership in FB Page :\t{a}".format(a=(value*regions_family_df.loc[regions_family_df['Region']==item,['Both Genders Widower From Civil Partnership %']].values[0]/100).round(2)))
+            print("Fans of Both Genders Separated From Civil Partnership in FB Page :\t{a}".format(a=(value*regions_family_df.loc[regions_family_df['Region']==item,['Both Genders Separated From Civil Partnership %']].values[0]/100).round(2)))
             
-
-
-
         #print(dataframe)
         #print(regions)
 
     border_msg('END OF FAMILY STATUS STATS')
-
+    
 def main():
 
     regions = pd.read_excel('excels/lite/RegionDF.xlsx')
     
     education = pd.read_excel('excels/elstat/formated epipedo ekpaideusis.xlsx')
     print_dataframes_education(regions,education)
-    
-    
+
     occupation = pd.read_excel('excels/elstat/formated katastasi asxolias greece.xlsx')
     print_dataframe_age_occupation(regions,occupation)
     
     family = pd.read_excel('excels/elstat/formated oikogeneiaki katastasi.xlsx')
     print_dataframe_family(regions,family)
     
-
 
 main()
