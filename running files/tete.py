@@ -16,7 +16,8 @@ def convert_string(s):
 
 def convert_time_date64(dt):
     dt64 = np.datetime64(dt)
-    ts = (dt64 - np.datetime64('1970-01-01T00:00:00Z')) / np.timedelta64(1, 's')
+    ts = (dt64 - np.datetime64('1970-01-01T00:00:00Z'))
+    ts = ts/np.timedelta64(1,'s')
     return datetime.utcfromtimestamp(ts)
 
 
@@ -67,6 +68,7 @@ list_post_cont_ids = list(set(list_post_cont_ids))
 options_posts_cont=[]
 for post_id in list_post_cont_ids:
     templist = list(set(df_posts_cont[df_posts_cont['ID']==post_id]['Message']))
+    templist[0] = templist[0][:100]
     options_posts_cont.append({'label':'{} '.format( templist[0] ), 'value':post_id})
 
 list_cities=list(df_cities.columns)
@@ -530,8 +532,6 @@ def update_region_growth(n_clicks, posts_ticker_cont):
         
     child = ['Bigggest Growth at Regions: '+str(area)+' from '+ str(biggest_start) +' to '+ str(biggest_end)+ ' ['+ str(percentage)+'%]']
     
-    #return [str(latest_date_in_region_xlsx)+" - "+str(cnv_latest_xlsx)+" - "+str(cnv_date_end)+" - "+str(date_to_use_as_last)]
-
     return child
 
 if __name__ == '__main__':

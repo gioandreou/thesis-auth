@@ -5,7 +5,18 @@ from dash.dependencies import Input, Output, State
 from datetime import datetime
 import pycountry
 import pandas as pd
+import dateutil.parser
+import numpy as np
 
+def convert_string(s):
+    datetimeObj = dateutil.parser.parse(s)
+    return datetimeObj
+
+def convert_time_date64(dt):
+    dt64 = np.datetime64(dt)
+    ts = (dt64 - np.datetime64('1970-01-01T00:00:00Z'))
+    ts = ts/np.timedelta64(1,'s')
+    return datetime.utcfromtimestamp(ts)
 
 app = dash.Dash()
 # excel imports to pandas dataframes
@@ -54,6 +65,7 @@ list_post_cont_ids = list(set(list_post_cont_ids))
 options_posts_cont=[]
 for post_id in list_post_cont_ids:
     templist = list(set(df_posts_cont[df_posts_cont['ID']==post_id]['Message']))
+    templist[0] = templist[0][:100]
     options_posts_cont.append({'label':'{} '.format( templist[0] ), 'value':post_id})
 
 list_cities=list(df_cities.columns)
@@ -111,7 +123,7 @@ style_whole_div ={
 
 app.layout = html.Div(children=[
     html.H1(
-        children='Dashboard of Andreou George Thesis',
+        children='Dashboard of Andreou George\'s Thesis',
         style=style_fonts),
     
     html.Div(children=[    
@@ -425,6 +437,56 @@ app.layout = html.Div(children=[
                     'paper_bgcolor': colors['background'],
                     'font': graph_fonts,
                     'title': 'Lines of Each Region at Specific Post Dates'}}),
+        
+        html.P(
+                id='text-age-targetgroup',
+                children=['Biggest Growth at Ages: '+'M.18-24 '+'from '+
+                
+                str(df_test_age_gender[df_test_age_gender['Date']==
+                df_posts_cont[(df_posts_cont['ID']=='974146599436745_974147879436617') & (df_posts_cont['STATUS']=='START')]['Date Fetched'].values[0]]['M.18-24'].item())
+                
+                +' to '+
+                str(df_test_age_gender[df_test_age_gender['Date']==
+                df_posts_cont[(df_posts_cont['ID']=='974146599436745_974147879436617') & (df_posts_cont['STATUS']=='DEAD')]['Date Fetched'].values[0]]['M.18-24'].item())
+                +' ['+
+                str(round(
+                    (df_test_age_gender[df_test_age_gender['Date']==
+                    df_posts_cont[(df_posts_cont['ID']=='974146599436745_974147879436617') & (df_posts_cont['STATUS']=='DEAD')]['Date Fetched'].values[0]]['M.18-24'].item()
+                    -
+                    df_test_age_gender[df_test_age_gender['Date']==
+                    df_posts_cont[(df_posts_cont['ID']=='974146599436745_974147879436617') & (df_posts_cont['STATUS']=='START')]['Date Fetched'].values[0]]['M.18-24'].item())
+                    /
+                    (df_test_age_gender[df_test_age_gender['Date']==
+                    df_posts_cont[(df_posts_cont['ID']=='974146599436745_974147879436617') & (df_posts_cont['STATUS']=='START')]['Date Fetched'].values[0]]['M.18-24'].item())
+                *100,2))+' %]'
+                ],
+                style=style_fonts),
+            
+        html.P(
+                id='text-region-targetgroup',
+                children=['Biggest Growth at Region: '+'Central Macedonia, Greece'+' from '+
+                str(df_test_regions[
+                    (df_test_regions['Date Fetched']==(df_posts_cont[(df_posts_cont['ID']=='974146599436745_974147879436617')&(df_posts_cont['STATUS']=='START')]['Date Fetched'].values[0]))&
+                    (df_test_regions['Region']=='Central Macedonia, Greece')]['Fans'].item())
+                +' to '+
+                str(df_test_regions[
+                    (df_test_regions['Date Fetched']==(df_posts_cont[(df_posts_cont['ID']=='974146599436745_974147879436617')&(df_posts_cont['STATUS']=='DEAD')]['Date Fetched'].values[0]))&
+                    (df_test_regions['Region']=='Central Macedonia, Greece')]['Fans'].item())
+                +' ['+
+                str(round(
+                    (df_test_regions[
+                    (df_test_regions['Date Fetched']==(df_posts_cont[(df_posts_cont['ID']=='974146599436745_974147879436617')&(df_posts_cont['STATUS']=='DEAD')]['Date Fetched'].values[0]))&
+                    (df_test_regions['Region']=='Central Macedonia, Greece')]['Fans'].item()
+                    -
+                    df_test_regions[
+                    (df_test_regions['Date Fetched']==(df_posts_cont[(df_posts_cont['ID']=='974146599436745_974147879436617')&(df_posts_cont['STATUS']=='START')]['Date Fetched'].values[0]))&
+                    (df_test_regions['Region']=='Central Macedonia, Greece')]['Fans'].item())
+                    /(df_test_regions[
+                    (df_test_regions['Date Fetched']==(df_posts_cont[(df_posts_cont['ID']=='974146599436745_974147879436617')&(df_posts_cont['STATUS']=='START')]['Date Fetched'].values[0]))&
+                    (df_test_regions['Region']=='Central Macedonia, Greece')]['Fans'].item())
+                *100,2))+' %]'
+                ],
+                style=style_fonts),
 
     ],style={'border':'1px solid', 'border-radius': 10})
 
@@ -501,7 +563,9 @@ def update_graph_posts(n_clicks, posts_ticker):
     'layout': {'title':'Message: '+df_posts.loc[df_posts['ID']==posts_ticker]['Message'].item()}}
     return figure_posts
 
-
+'''
+BLOCK OF STRATEGY SPENDING 
+'''
 @app.callback(
     Output('my_graph_posts_cont', 'figure'),
     [Input('submit-button-posts-cont', 'n_clicks')],
@@ -656,6 +720,100 @@ def update_date_alive(n_clicks, posts_ticker_cont):
         dateUntil = str(df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='DEAD')]['Date Fetched'].values[0])
 
     child = ['Post is alive from: '+dateFrom+' until: '+dateUntil]
+    return child
+
+
+@app.callback(
+    Output('text-age-targetgroup', 'children'),
+    [Input('submit-button-posts-cont', 'n_clicks')],
+    [State('my_ticker_symbol_post_cont', 'value')])
+def update_age_growth(n_clicks, posts_ticker_cont):
+
+    list_ages = list(df_age_gender.columns.values)
+    list_ages.pop(0)
+    
+    date_start = df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='START')]['Date Fetched'].values[0]
+    if(len(df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='DEAD')]['Date Fetched'].values)==0):
+            date_end = df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='ALIVE')]['Date Fetched'].values[-1]
+    else:
+        date_end = df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='DEAD')]['Date Fetched'].values[0]
+    
+    latest_date_in_age_xlsx = df_age_gender['Date'].iloc[-1].isoformat()
+    cnv_latest_xlsx = convert_string(latest_date_in_age_xlsx)
+    cnv_date_end=convert_time_date64(date_end)
+    
+    if cnv_latest_xlsx<cnv_date_end:
+        date_to_use_as_last = cnv_latest_xlsx
+    else:
+        date_to_use_as_last = cnv_date_end
+    biggest=-1 
+
+    for age in list_ages:
+
+        start_value = int(df_age_gender[df_age_gender['Date']==date_start][age].item())
+        
+        end_value = int(df_age_gender[df_age_gender['Date']==date_to_use_as_last][age].item())
+        
+        difference = end_value-start_value 
+        if difference >= biggest:
+            biggest_start = start_value
+            biggest_end = end_value
+            age_group = age
+            percentage = round(((biggest_end-biggest_start)/biggest_start)*100,2)
+            biggest = difference
+        
+       
+    kid = ['Bigggest Growth at Ages: '+str(age_group)+' from '+ str(biggest_start) +' to '+ str(biggest_end) + ' ['+ str(percentage)+'%]']
+
+    return kid
+
+
+@app.callback(
+    Output('text-region-targetgroup', 'children'),
+    [Input('submit-button-posts-cont', 'n_clicks')],
+    [State('my_ticker_symbol_post_cont', 'value')])
+def update_region_growth(n_clicks, posts_ticker_cont):
+    
+    date_start = df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='START')]['Date Fetched'].values[0]
+    date_start = convert_time_date64(date_start)
+    
+    if(len(df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='DEAD')]['Date Fetched'].values)==0):
+        date_end = df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='ALIVE')]['Date Fetched'].values[-1]
+    else:
+        date_end = df_posts_cont[(df_posts_cont['ID']==posts_ticker_cont) & (df_posts_cont['STATUS']=='DEAD')]['Date Fetched'].values[0]
+
+    latest_date_in_region_xlsx = df_regions_fans['Date Fetched'].iloc[-1].isoformat()
+    cnv_latest_xlsx = convert_string(latest_date_in_region_xlsx)
+    cnv_date_end=convert_time_date64(date_end)
+
+    if cnv_latest_xlsx<cnv_date_end:
+        date_to_use_as_last = cnv_latest_xlsx
+    else:
+        date_to_use_as_last = cnv_date_end
+    
+    starting_regions = df_regions_fans[df_regions_fans['Date Fetched']==date_start]['Region']
+    ending_regions =df_regions_fans[df_regions_fans['Date Fetched']==date_to_use_as_last]['Region']
+    common_regions = pd.Series(list(set(starting_regions).intersection(set(ending_regions))))
+    
+    biggest=-1 
+    for region in common_regions:
+        start_value = df_regions_fans[
+            (df_regions_fans['Date Fetched']==date_start) & (df_regions_fans['Region']==region)]['Fans'].item()
+        
+        end_value = df_regions_fans[
+            (df_regions_fans['Date Fetched']==date_to_use_as_last) & (df_regions_fans['Region']==region)]['Fans'].item()
+        
+        difference = end_value-start_value 
+        
+        if difference >= biggest:
+            biggest_start = start_value
+            biggest_end = end_value
+            area = region
+            percentage = round(((biggest_end-biggest_start)/biggest_start)*100,2)
+            biggest = difference
+        
+    child = ['Bigggest Growth at Regions: '+str(area)+' from '+ str(biggest_start) +' to '+ str(biggest_end)+ ' ['+ str(percentage)+'%]']
+    
     return child
 
 
