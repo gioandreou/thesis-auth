@@ -9,6 +9,8 @@ from datetime import datetime
 from tabulate import tabulate
 from pandas import ExcelWriter
 
+date_format = "%d/%m/%Y"
+
 def striplist(l):
     return([x.strip() for x in l])
 
@@ -57,7 +59,7 @@ def create_regions_continuously(dataframe):
         worksheet.write(0, 1,'Region')
         worksheet.write(0, 2,'Fans')
 
-        todays_date = datetime.today().strftime("%d/%m/%Y")
+        todays_date = datetime.today().strftime(date_format)
 
         region_list = dataframe.index.tolist()
         value_list = dataframe[dataframe.columns[0]].tolist()
@@ -78,7 +80,7 @@ def update_regions_continuously(dataframe):
         max_row = worksheet.max_row
         max_row=max_row+1
 
-        todays_date = datetime.today().strftime("%d/%m/%Y")
+        todays_date = datetime.today().strftime(date_format)
 
         region_list = dataframe.index.tolist()
         value_list = dataframe[dataframe.columns[0]].tolist()

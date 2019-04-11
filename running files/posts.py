@@ -16,6 +16,7 @@ if __name__ == '__main__':
 
     posts = graph.get_object(id='974146599436745', fields='posts')
 
+date_format = "%d/%m/%Y"
 
 def get_post_info():
     list_post = posts["posts"]["data"]
@@ -25,7 +26,8 @@ def get_post_info():
         if "message" in item:
             id_of_post= item["id"]
             date_to_write= item["created_time"].split("+",1)[0]
-            #date_to_write = datetime.strptime(date_to_write, '%Y-%m-%d').strftime("%d/%m/%Y")
+           
+
             ###All People
             ##Post Impressions = The number of times your Page's post entered a person's screen.
             post_impressions = graph.get_object(id=id_of_post, fields='insights.metric(post_impressions)')
@@ -131,7 +133,7 @@ def update_continously_post_info_in_xlsx(dictionary,name_xlsx):
     col=2
     row=last_row+1
 
-    todays_date = datetime.today().strftime("%d/%m/%Y")
+    todays_date = datetime.today().strftime(date_format)
     
     for i in range(len(All_ids)): #every id-post 
         ws.cell(row=row+i,column=1).value=todays_date #write date of fetching 
@@ -196,7 +198,7 @@ def write_continously_post_info_in_xlsx(dictionary,name_xlsx):
     col=1
     row=1
 
-    todays_date = datetime.today().strftime("%d/%m/%Y")
+    todays_date = datetime.today().strftime(date_format)
     
     for i in range(len(All_ids)): #every id-post 
         worksheet.write(row+i,0,todays_date) #write date of fetching 
