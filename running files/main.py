@@ -118,4 +118,4 @@ if __name__ == '__main__':
     page_actions_post_reactions_total= graph.get_object(id='974146599436745', fields='insights.metric(page_actions_post_reactions_total)')
     page_fan_adds_by_paid_non_paid_unique = graph.get_object(id='974146599436745', fields='insights.metric(page_fan_adds_by_paid_non_paid_unique)')
     post_reactions_by_type_total = graph.get_object(id='974146599436745_974147879436617', fields='insights.metric(post_reactions_by_type_total)')
-    print (json.dumps(page_fans_city, indent=4))
+    print (json.dumps(page_fans, indent=4))
