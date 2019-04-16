@@ -15,6 +15,7 @@ def striplist(l):
     return([x.strip() for x in l])
 
 def fetch_xlsx(dataframe):
+    date_fetched = dataframe['Date'].iloc[-1]
     #DROP THE DATE COLUMN TO KEEP ONLY THE CITY-REGION VALUES
     dataframe = dataframe.drop(['Date'], axis=1)
     headers=list(dataframe.columns.values)
@@ -29,7 +30,6 @@ def fetch_xlsx(dataframe):
         dataframe.columns = headers
         #GROUP DATA BY THEIR COLUMNS(REGIONS) AND SUM TOGETHER THE COLUMNS(REGIONS) WITH THE SAME NAME .
         dataframe = dataframe.groupby(dataframe.columns, axis=1).sum()
-       
         #CALCULATE THE MEAN VALUE FOR EVERY REGION
         dataframe_mean = dataframe.mean(axis=0 )
         #KEEP THE N LARGEST REGIONS 
@@ -44,14 +44,13 @@ def fetch_xlsx(dataframe):
         dataframe_last = dataframe_last.nlargest(7,column_name[0])    
         
         if os.path.isfile('excels/lite/RegionDF_countinuously.xlsx'):
-                update_regions_continuously(dataframe_last)
+                update_regions_continuously(dataframe_last,date_fetched)
         else:
-                create_regions_continuously(dataframe_last)
+                create_regions_continuously(dataframe_last,date_fetched)
 
-        create_regions_simple(dataframe_mean)
-         
+        create_regions_simple(dataframe_mean)         
 
-def create_regions_continuously(dataframe):
+def create_regions_continuously(dataframe,date_fetched):
         name_xlsx = 'excels/lite/RegionDF_countinuously.xlsx'
         workbook = xlsxwriter.Workbook(name_xlsx)
         worksheet = workbook.add_worksheet()
@@ -59,7 +58,7 @@ def create_regions_continuously(dataframe):
         worksheet.write(0, 1,'Region')
         worksheet.write(0, 2,'Fans')
 
-        todays_date = datetime.today().strftime(date_format)
+        todays_date = date_fetched.strftime(date_format)
 
         region_list = dataframe.index.tolist()
         value_list = dataframe[dataframe.columns[0]].tolist()
@@ -73,14 +72,13 @@ def create_regions_continuously(dataframe):
         workbook.close()
         print(name_xlsx + " is created!")
 
-def update_regions_continuously(dataframe):
+def update_regions_continuously(dataframe,date_fetched):
         name_xlsx = 'excels/lite/RegionDF_countinuously.xlsx'
         workbook = load_workbook(name_xlsx)
         worksheet = workbook.active
         max_row = worksheet.max_row
         max_row=max_row+1
-
-        todays_date = datetime.today().strftime(date_format)
+        todays_date = date_fetched.strftime(date_format)
 
         region_list = dataframe.index.tolist()
         value_list = dataframe[dataframe.columns[0]].tolist()
