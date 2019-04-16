@@ -130,8 +130,8 @@ app.layout = html.Div(children=[
     
     html.Div(children=[    
         html.P("  "),
-        html.Div(
-            children='The Informations and Stats about the Fans of our Page',
+        html.H2(
+            children='Informations and Stats about the Fans of our Page',
             style=style_fonts),
         #Age-Gender
         dcc.Graph(
@@ -210,7 +210,7 @@ app.layout = html.Div(children=[
     
     html.Div(children=[
         html.P("  "),
-        html.Div(
+        html.H2(
             children='Geographic Informations and Stats about the Fans of our Page',
             style=style_fonts),
         html.P("  "),
@@ -297,7 +297,8 @@ app.layout = html.Div(children=[
     ],style={'border':'1px solid', 'border-radius': 10}),    
     
     html.Div(children=[
-        html.P("  "),
+        html.H2("Informations and Stats about every Post of our Page",
+        style=style_fonts),
         #posts infos 
         html.Div([
             html.H3('Select Posts:', style=style_fonts),
