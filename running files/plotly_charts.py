@@ -131,7 +131,7 @@ app.layout = html.Div(children=[
     html.Div(children=[    
         html.P("  "),
         html.H2(
-            children='Informations and Stats about the Fans of our Page',
+            children='Information about the Fans and Stats of our Page',
             style=style_fonts),
         #Age-Gender
         dcc.Graph(
@@ -157,7 +157,7 @@ app.layout = html.Div(children=[
                     'plot_bgcolor': colors['background'],
                     'paper_bgcolor': colors['background'],
                     'font': graph_fonts,
-                    'title': 'Age and Gender of FB PAGE'}}),
+                    'title': 'Age and Gender of FB page fans'}}),
         #Regions
         dcc.Graph(
             id='regions',
@@ -187,14 +187,14 @@ app.layout = html.Div(children=[
                     'plot_bgcolor': colors['background'],
                     'paper_bgcolor': colors['background'],
                     'font': graph_fonts,
-                    'title': 'Informations about the Page'}}),
+                    'title': 'Information about the Page'}}),
         #Post Info
         dcc.Graph(
             id='page-post',
             figure={'data': [
                     {'x': df_page_post['Date'], 'y': df_page_post['Page Post Impressions'], 'type': 'lines', 'name': 'Page Post Impressions'},
                     {'x': df_page_post['Date'], 'y': df_page_post['Page Post Engagements'], 'type': 'lines', 'name': 'Page Post Engagements'},
-                    {'x': df_page_post['Date'], 'y': df_page_post['Page Consumptios'], 'type': 'lines', 'name': 'Page Consumptios'},
+                    {'x': df_page_post['Date'], 'y': df_page_post['Page Consumptios'], 'type': 'lines', 'name': 'Page Post Consumptios'},
                     {'x': df_page_post['Date'], 'y': df_page_post['Page Post Impressions Paid'], 'type': 'lines', 'name': 'Page Post Impressions Paid'},
                     {'x': df_page_post['Date'], 'y': df_page_post['Page Post Impressions Organic'], 'type': 'lines', 'name': 'Page Post Impressions Organic'},
                     {'x': df_page_post['Date'], 'y': df_page_post['Page Post Impressions Viral'], 'type': 'lines', 'name': 'Page Post Impressions Viral'}    
@@ -205,13 +205,13 @@ app.layout = html.Div(children=[
                     'plot_bgcolor': colors['background'],
                     'paper_bgcolor': colors['background'],
                     'font': graph_fonts,
-                    'title': 'Informations about the Posts of the Page'}}),
+                    'title': 'Information about the Posts of the Page'}}),
     ],style={'border':'1px solid', 'border-radius': 10}),   
     
     html.Div(children=[
         html.P("  "),
         html.H2(
-            children='Geographic Informations and Stats about the Fans of our Page',
+            children='Geographic Information and Stats about the Fans of our Page',
             style=style_fonts),
         html.P("  "),
         #cities
@@ -297,7 +297,7 @@ app.layout = html.Div(children=[
     ],style={'border':'1px solid', 'border-radius': 10}),    
     
     html.Div(children=[
-        html.H2("Informations and Stats about every Post of our Page",
+        html.H2("Information and Stats about every Post of our Page",
         style=style_fonts),
         #posts infos 
         html.Div([
@@ -566,9 +566,8 @@ def update_graph_posts(n_clicks, posts_ticker):
     'layout': {'title':'Message: '+df_posts.loc[df_posts['ID']==posts_ticker]['Message'].item()}}
     return figure_posts
 
-'''
-BLOCK OF STRATEGY SPENDING 
-'''
+#BLOCK OF STRATEGY SPENDING 
+
 @app.callback(
     Output('my_graph_posts_cont', 'figure'),
     [Input('submit-button-posts-cont', 'n_clicks')],

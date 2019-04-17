@@ -48,7 +48,7 @@ def fetch_xlsx(dataframe):
         else:
                 create_regions_continuously(dataframe_last,date_fetched)
 
-        create_regions_simple(dataframe_mean)         
+        create_regions_simple(dataframe_last)         
 
 def create_regions_continuously(dataframe,date_fetched):
         name_xlsx = 'excels/lite/RegionDF_countinuously.xlsx'
