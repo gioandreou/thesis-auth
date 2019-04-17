@@ -77,7 +77,8 @@ def update_regions_continuously(dataframe,date_fetched):
         workbook = load_workbook(name_xlsx)
         worksheet = workbook.active
         max_row = worksheet.max_row
-        max_row=max_row+1
+        max_row=max_row+1    
+        
         todays_date = date_fetched.strftime(date_format)
 
         region_list = dataframe.index.tolist()
